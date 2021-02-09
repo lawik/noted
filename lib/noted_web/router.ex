@@ -12,17 +12,21 @@ defmodule NotedWeb.Router do
 
   pipeline :api do
     plug :accepts, ["json"]
+    plug :fetch_session
   end
 
   scope "/", NotedWeb do
     pipe_through :browser
 
     live "/", PageLive, :index
+    get "/user-session/:auth_key", SessionController, :session_redirect
   end
 
   # Other scopes may use custom stacks.
   # scope "/api", NotedWeb do
   #   pipe_through :api
+
+  #   post "/session", SessionController, :set
   # end
 
   # Enables LiveDashboard only for development

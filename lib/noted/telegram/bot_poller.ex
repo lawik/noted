@@ -1,4 +1,7 @@
-defmodule Noted.Bot do
+defmodule Noted.Telegram.BotPoller do
+  @moduledoc """
+  Responsible for checking a specific bot for updates.
+  """
   use GenServer
   require Logger
 
@@ -10,9 +13,12 @@ defmodule Noted.Bot do
   def init(opts) do
     {key, _opts} = Keyword.pop!(opts, :bot_key)
 
-    {:ok, me} = Telegram.Api.request(key, "getMe") |> IO.inspect(label: "me")
+    # Get connected and verify that we can make calls with
+    # the Bot API
+    {:ok, %{"id" => id} = me} = Telegram.Api.request(key, "getMe")
 
     state = %{
+      id: id,
       me: me,
       name: me["username"],
       bot_key: key,
@@ -32,11 +38,14 @@ defmodule Noted.Bot do
           state
 
         {:ok, updates} ->
-          IO.inspect(updates, label: "updates")
-
           last_seen =
             Enum.map(updates, fn update ->
-              handle_update(update)
+              Phoenix.PubSub.broadcast!(
+                Noted.PubSub,
+                "telegram_bot_update:#{state.id}",
+                {:update, update}
+              )
+
               # Map down to IDs
               update["update_id"]
             end)
@@ -56,16 +65,7 @@ defmodule Noted.Bot do
     {:noreply, state}
   end
 
-  def handle_update(%{"message" => %{"from" => %{"id" => user_identifier}, "message_id" => message_id, "text" => text}} = _update) do
-    Noted.Notes.ingest_note(user_identifier, message_id, text)
-  end
-
-  def handle_update(update) do
-    Logger.warn("Unmatched message: #{inspect(update)}")
-  end
-
   defp next_loop() do
     Process.send_after(self(), :start, 0)
   end
-
 end

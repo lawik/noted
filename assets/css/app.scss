@@ -6,6 +6,31 @@
 
 @import "tailwindcss/utilities";
 
+/* The Basics */
+
+@layer base {
+  h1 {
+    @apply text-2xl;
+  }
+
+  h2 {
+    @apply text-xl;
+  }
+
+  ul.styled {
+    @apply list-disc list-inside;
+  }
+
+  button {
+    @apply bg-gray-400 text-white rounded-lg px-4 py-2 m-2;
+  }
+
+  input[type="submit"],
+  button[type="submit"] {
+    @apply bg-purple-600 text-white rounded-lg px-4 py-2 m-2;
+  }
+}
+
 /* LiveView specific classes for your customizations */
 .phx-no-feedback.invalid-feedback,
 .phx-no-feedback .invalid-feedback {

@@ -15,9 +15,10 @@ defmodule Noted.Application do
       {Phoenix.PubSub, name: Noted.PubSub},
       # Start the Endpoint (http/https)
       NotedWeb.Endpoint,
-      # Start a worker by calling: Noted.Worker.start_link(arg)
-      # {Noted.Worker, arg}
-      {Noted.Bot, bot_key: System.get_env("TELEGRAM_BOT_SECRET")}
+      # Telegram bot stuff
+      Noted.Telegram.Auth,
+      {Noted.Telegram.Bot, bot_key: System.get_env("TELEGRAM_BOT_SECRET")},
+      {Noted.Telegram.BotPoller, bot_key: System.get_env("TELEGRAM_BOT_SECRET")}
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html

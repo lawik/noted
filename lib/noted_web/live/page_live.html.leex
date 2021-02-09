@@ -1,48 +1,25 @@
-<section class="phx-hero">
-  <h1><%= gettext "Welcome to %{name}!", name: "Phoenix" %></h1>
-  <p>Peace of mind from prototype to production</p>
+<%= if @user do %>
+<p>
+Welcome <%= @user["first_name"] || @user["username"] %> <%= @user["last_name"] || "" %>
+</p>
 
-  <form phx-change="suggest" phx-submit="search">
-    <input type="text" name="q" value="<%= @query %>" placeholder="Live dependency search" list="results" autocomplete="off"/>
-    <datalist id="results">
-      <%= for {app, _vsn} <- @results do %>
-        <option value="<%= app %>"><%= app %></option>
-      <% end %>
-    </datalist>
-    <button type="submit" phx-disable-with="Searching...">Go to Hexdocs</button>
-  </form>
-</section>
+<%= if not is_nil(@files) and is_nil(@edit_file) do %>
+<ul role="list">
+<%= for file <- @files do %>
+    <li class="text-lg"><%= file %><button class="px-2 py-1 text-sm" phx-value-filename="<%= file %>" phx-click="edit_file">Edit</button></li>
+<% end %>
+</ul>
+<% end %>
 
-<section class="row">
-  <article class="column">
-    <h2>Resources</h2>
-    <ul>
-      <li>
-        <a href="https://hexdocs.pm/phoenix/overview.html">Guides &amp; Docs</a>
-      </li>
-      <li>
-        <a href="https://github.com/phoenixframework/phoenix">Source</a>
-      </li>
-      <li>
-        <a href="https://github.com/phoenixframework/phoenix/blob/v1.5/CHANGELOG.md">v1.5 Changelog</a>
-      </li>
-    </ul>
-  </article>
-  <article class="column">
-    <h2>Help</h2>
-    <ul>
-      <li>
-        <a href="https://elixirforum.com/c/phoenix-forum">Forum</a>
-      </li>
-      <li>
-        <a href="https://webchat.freenode.net/?channels=elixir-lang">#elixir-lang on Freenode IRC</a>
-      </li>
-      <li>
-        <a href="https://twitter.com/elixirphoenix">Twitter @elixirphoenix</a>
-      </li>
-      <li>
-        <a href="https://elixir-slackin.herokuapp.com/">Elixir on Slack</a>
-      </li>
-    </ul>
-  </article>
-</section>
+<%= if @edit_file do %>
+    <h2 class="text-center"><%= @edit_file.filename %></h2>
+    <button phx-click="close_file">Close</button>
+    <form phx-submit="save_file">
+        <%= textarea(:edit, :content, class: "block w-full p-4 focus:outline-none border-purple-600 border-2 bg-color-white text-black rounded-lg my-2", value: @edit_file.content) %>
+        <%= submit("Submit") %>
+    </form>
+<% end %>
+
+<% else %>
+<a href="<%= @auth_link %>" target="_blank">Authenticate via Telegram</a> or send <br /><code><%= @auth_command %></code> <br />to @<%= @bot_name %>.
+<% end %>
