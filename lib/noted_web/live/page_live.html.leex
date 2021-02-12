@@ -3,19 +3,24 @@
 Welcome <%= @user["first_name"] || @user["username"] %> <%= @user["last_name"] || "" %>
 </p>
 
-<%= if not is_nil(@files) and is_nil(@edit_file) do %>
+<%= if not is_nil(@notes) and is_nil(@edit_note) do %>
 <ul role="list">
-<%= for file <- @files do %>
-    <li class="text-lg"><%= file %><button class="px-2 py-1 text-sm" phx-value-filename="<%= file %>" phx-click="edit_file">Edit</button></li>
+<%= for note <- @notes do %>
+    <li class="text-lg"><%= note.title %><button class="px-2 py-1 text-sm" phx-value-note="<%= note.id %>" phx-click="edit_note">Edit</button></li>
 <% end %>
 </ul>
 <% end %>
 
-<%= if @edit_file do %>
-    <h2 class="text-center"><%= @edit_file.filename %></h2>
-    <button phx-click="close_file">Close</button>
-    <form phx-submit="save_file">
-        <%= textarea(:edit, :content, class: "block w-full p-4 focus:outline-none border-purple-600 border-2 bg-color-white text-black rounded-lg my-2", value: @edit_file.content) %>
+<%= if @edit_note do %>
+    <button phx-click="close_note">Close</button>
+    <form phx-submit="save_note">
+        <%= text_input(:edit, :title,
+            class: "block w-full p-4 focus:outline-none border-purple-600 border-2 bg-color-white text-black rounded-lg my-2",
+            value: @edit_note.title) %>
+        <%= textarea(:edit, :body,
+            class: "block w-full p-4 focus:outline-none border-purple-600 border-2 bg-color-white text-black rounded-lg my-2",
+            value: @edit_note.body
+            ) %>
         <%= submit("Submit") %>
     </form>
 <% end %>

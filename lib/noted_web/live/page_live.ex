@@ -10,11 +10,10 @@ defmodule NotedWeb.PageLive do
 
     user = Auth.get_user(session)
 
-    {files, {link, command}} =
+    {notes, {link, command}} =
       if user do
-        user_id = user["id"]
-        Phoenix.PubSub.subscribe(Noted.PubSub, "note-update:#{user_id}")
-        {Notes.list(user_id), {"", ""}}
+        Phoenix.PubSub.subscribe(Noted.PubSub, "note-update:#{user.id}")
+        {Notes.list_notes(user.id), {"", ""}}
       else
         # Get link/command for starting authentication flow
         {[], Auth.generate_auth_link(bot_name)}
@@ -22,12 +21,13 @@ defmodule NotedWeb.PageLive do
 
     {:ok,
      assign(socket,
-       user: user,
+       user: user.telegram_data,
+       user_id: user.id,
        auth_link: link,
        auth_command: command,
        bot_name: bot_name,
-       files: files,
-       edit_file: nil
+       notes: notes,
+       edit_note: nil
      )}
   end
 
@@ -39,25 +39,25 @@ defmodule NotedWeb.PageLive do
 
   @impl true
   def handle_info({:notes_updated, user_id}, socket) do
-    files = Notes.list(user_id)
-    {:noreply, assign(socket, files: files)}
+    notes = Notes.list_notes(user_id)
+    {:noreply, assign(socket, notes: notes)}
   end
 
   @impl true
-  def handle_event("edit_file", %{"filename" => filename}, socket) do
-    edit_file = Notes.load(socket.assigns.user["id"], filename)
-    {:noreply, assign(socket, edit_file: edit_file)}
+  def handle_event("edit_note", %{"note" => note_id}, socket) do
+    edit_note = Notes.get_note!(note_id)
+    {:noreply, assign(socket, edit_note: edit_note)}
   end
 
   @impl true
-  def handle_event("save_file", %{"edit" => %{"content" => content}}, socket) do
-    Notes.save(socket.assigns.user["id"], socket.assigns.edit_file.filename, content)
-    {:noreply, assign(socket, edit_file: nil)}
+  def handle_event("save_note", %{"edit" => %{"title" => title, "body" => body}}, socket) do
+    Notes.update_note(socket.assigns.edit_note.id, title: title, body: body)
+    {:noreply, assign(socket, edit_note: nil)}
   end
 
   @impl true
-  def handle_event("close_file", _, socket) do
-    {:noreply, assign(socket, edit_file: nil)}
+  def handle_event("close_note", _, socket) do
+    {:noreply, assign(socket, edit_note: nil)}
   end
 
   defp default_bot_name do

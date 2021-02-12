@@ -25,17 +25,17 @@ defmodule Noted.Telegram.Auth do
     key
   end
 
-  def save_user_data(key, user_information) do
+  def save_user_data(key, telegram_user_id) do
     Registry.register(
       Noted.Telegram.AuthRegistry,
       "authed-#{key}",
-      {:erlang.monotonic_time(:seconds), user_information}
+      {:erlang.monotonic_time(:seconds), telegram_user_id}
     )
   end
 
   def load_user_data(key) do
     case Registry.lookup(Noted.Telegram.AuthRegistry, "authed-#{key}") do
-      [{_, {_, user_information}} | _] -> user_information
+      [{_, {_, telegram_user_id}} | _] -> Noted.Accounts.get_user_by_telegram_id(telegram_user_id)
       _ -> nil
     end
   end
@@ -47,13 +47,25 @@ defmodule Noted.Telegram.Auth do
     {"https://t.me/#{bot_name}?start=auth-#{key}", "/start auth-#{key}"}
   end
 
-  def confirm_authentication(auth_key, user_information) do
+  def confirm_authentication(auth_key, %{"id" => telegram_user_id} = user_information) do
     case Registry.lookup(Noted.Telegram.AuthRegistry, "auth-#{auth_key}") do
       [] ->
         {:error, :auth_failed}
 
       [{pid, _} | _] ->
-        save_user_data(auth_key, user_information)
+        save_user_data(auth_key, telegram_user_id)
+
+        case Noted.Accounts.get_user_by_telegram_id(telegram_user_id) do
+          nil ->
+            Noted.Accounts.create_user(%{
+              telegram_id: telegram_user_id,
+              telegram_data: user_information
+            })
+
+          user ->
+            Noted.Accounts.update_user(user, %{telegram_data: user_information})
+        end
+
         send(pid, {:authenticated, user_information, auth_key})
         :ok
     end

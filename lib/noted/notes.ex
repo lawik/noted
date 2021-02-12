@@ -1,23 +1,15 @@
 defmodule Noted.Notes do
-  @file_extension ".md"
-  @category_pattern ~r/([a-z]+): (.+)/
+  @moduledoc """
+  The Notes context.
+  """
 
-  def ingest_note(user_identifier, message_id, full_text) do
-    timestamp =
-      "Etc/UTC"
-      |> DateTime.now!()
-      |> DateTime.to_iso8601(:basic)
-      |> String.replace("T", "")
-      |> String.split_at(12)
-      |> IO.inspect()
-      |> elem(0)
+  import Ecto.Query, warn: false
+  alias Noted.Repo
 
-    filename = "#{timestamp}-#{message_id}#{@file_extension}"
-    dir = notes_directory(user_identifier)
-    File.mkdir_p!(dir)
-    path = Path.join([dir, filename])
+  alias Noted.Notes.Note
 
-    File.write!(path, full_text)
+  def ingest_note(user_identifier, _message_id, full_text) do
+    create_note(full_text, "") |> IO.inspect()
 
     Phoenix.PubSub.broadcast!(
       Noted.PubSub,
@@ -26,40 +18,110 @@ defmodule Noted.Notes do
     )
   end
 
-  def load(user_identifier, filename) do
-    data = File.read!(Path.join(notes_directory(user_identifier), filename))
-    %{filename: filename, content: data}
+  @doc """
+  Returns the list of notes.
+
+  ## Examples
+
+      iex> list_notes()
+      [%Note{}, ...]
+
+  """
+  def list_notes do
+    Repo.all(Note)
   end
 
-  def save(user_identifier, filename, content) do
-    data = File.write!(Path.join(notes_directory(user_identifier), filename), content)
+  def list_notes(user_identifier) do
+    list_notes()
   end
 
-  def list(user_identifier) do
-    user_identifier
-    |> notes_directory()
-    |> File.ls!()
-    |> Enum.sort()
+  @doc """
+  Gets a single note.
+
+  Raises `Ecto.NoResultsError` if the Note does not exist.
+
+  ## Examples
+
+      iex> get_note!(123)
+      %Note{}
+
+      iex> get_note!(456)
+      ** (Ecto.NoResultsError)
+
+  """
+  def get_note!(id), do: Repo.get!(Note, id)
+
+  @doc """
+  Creates a note.
+
+  ## Examples
+
+      iex> create_note(%{field: value})
+      {:ok, %Note{}}
+
+      iex> create_note(%{field: bad_value})
+      {:error, %Ecto.Changeset{}}
+
+  """
+  def create_note(attrs \\ %{}) do
+    %Note{}
+    |> Note.changeset(attrs)
+    |> Repo.insert()
   end
 
-  defp parse_text(full_text) do
-    case Regex.run(@category_pattern, full_text) do
-      nil ->
-        {"", full_text}
-
-      [_, category, text] ->
-        {category, text}
-    end
+  def create_note(title, body) do
+    create_note(%{title: title, body: body})
   end
 
-  defp notes_directory(user_identifier) do
-    dir =
-      Path.join(
-        System.get_env("NOTES_DIRECTORY", "/tmp/notes"),
-        Integer.to_string(user_identifier)
-      )
+  @doc """
+  Updates a note.
 
-    File.mkdir_p!(dir)
-    dir
+  ## Examples
+
+      iex> update_note(note, %{field: new_value})
+      {:ok, %Note{}}
+
+      iex> update_note(note, %{field: bad_value})
+      {:error, %Ecto.Changeset{}}
+
+  """
+  def update_note(%Note{} = note, attrs) do
+    note
+    |> Note.changeset(attrs)
+    |> Repo.update()
+  end
+
+  def update_note(note_id, attrs) when is_integer(note_id) and is_list(attrs) do
+    attrs = Enum.into(attrs, %{})
+    update_note(%Note{id: note_id}, attrs)
+  end
+
+  @doc """
+  Deletes a note.
+
+  ## Examples
+
+      iex> delete_note(note)
+      {:ok, %Note{}}
+
+      iex> delete_note(note)
+      {:error, %Ecto.Changeset{}}
+
+  """
+  def delete_note(%Note{} = note) do
+    Repo.delete(note)
+  end
+
+  @doc """
+  Returns an `%Ecto.Changeset{}` for tracking note changes.
+
+  ## Examples
+
+      iex> change_note(note)
+      %Ecto.Changeset{data: %Note{}}
+
+  """
+  def change_note(%Note{} = note, attrs \\ %{}) do
+    Note.changeset(note, attrs)
   end
 end
