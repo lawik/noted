@@ -60,7 +60,7 @@ defmodule Noted.Telegram.BotPoller do
           state
       end
 
-    # handle updates
+    # Resume listening
     next_loop()
     {:noreply, state}
   end

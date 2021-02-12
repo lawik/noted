@@ -14,6 +14,7 @@ defmodule Noted.Telegram.Bot do
 
     # Authenticate the bot to allow replies and such
     # Match an OK response to make sure we're up and running
+    # and store some identifiers
     {:ok, %{"id" => id, "username" => bot_name} = me} = Telegram.Api.request(key, "getMe")
     Auth.register_bot(bot_name)
     Phoenix.PubSub.subscribe(Noted.PubSub, "telegram_bot_update:#{id}")
