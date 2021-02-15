@@ -9,7 +9,12 @@ defmodule Noted.Notes do
   alias Noted.Notes.Note
 
   def ingest_note(user_id, _message_id, full_text) do
-    create_note(user_id, full_text, "")
+    [title, body] =
+      full_text
+      |> String.split("\n", parts: 2)
+      |> Enum.map(&String.trim/1)
+
+    create_note(user_id, title, body)
 
     Phoenix.PubSub.broadcast!(
       Noted.PubSub,
