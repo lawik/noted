@@ -71,7 +71,7 @@ defmodule Noted.Telegram.Auth do
     end
   end
 
-  def get_user(session) do
+  def get_user_from_session(session) do
     session["user"]
   end
 end

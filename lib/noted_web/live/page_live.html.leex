@@ -1,7 +1,3 @@
-<%= if @user do %>
-<p>
-Welcome <%= @user["first_name"] || @user["username"] %> <%= @user["last_name"] || "" %>
-</p>
 
 <%= if not is_nil(@notes) and is_nil(@edit_note) do %>
 <ul role="list">
@@ -23,8 +19,4 @@ Welcome <%= @user["first_name"] || @user["username"] %> <%= @user["last_name"] |
             ) %>
         <%= submit("Submit") %>
     </form>
-<% end %>
-
-<% else %>
-<a href="<%= @auth_link %>" target="_blank">Authenticate via Telegram</a> or send <br /><code><%= @auth_command %></code> <br />to @<%= @bot_name %>.
 <% end %>

@@ -19,6 +19,7 @@ defmodule NotedWeb.Router do
     pipe_through :browser
 
     live "/", PageLive, :index
+    live "/note/:note_id", NoteLive, :index
     get "/user-session/:auth_key", SessionController, :session_redirect
   end
 
