@@ -72,6 +72,10 @@ defmodule Noted.Telegram.Auth do
   end
 
   def get_user_from_session(session) do
-    session["user"]
+    case session["user_id"] do
+      user_id when is_integer(user_id) -> Noted.Accounts.get_user(user_id)
+      nil -> nil
+      _ -> nil
+    end
   end
 end

@@ -60,8 +60,16 @@ defmodule Noted.Telegram.Bot do
         } = update,
         state
       ) do
-    Noted.Notes.ingest_note(user_identifier, message_id, text)
-    simple_reply(update, "Got it", state)
+    case Noted.Accounts.get_user_by_telegram_id(user_identifier) do
+      nil ->
+        Logger.error("Received ingest message from non-existant user.",
+          telegram_user_identifier: user_identifier
+        )
+
+      %{id: user_id} ->
+        Noted.Notes.ingest_note(user_id, message_id, text)
+        simple_reply(update, "Got it", state)
+    end
   end
 
   # Anything else

@@ -6,7 +6,7 @@ defmodule NotedWeb.SessionController do
     user = Auth.load_user_data(auth_key)
 
     conn
-    |> put_session("user", user)
+    |> put_session("user_id", user.id)
     |> redirect(to: "/")
   end
 end

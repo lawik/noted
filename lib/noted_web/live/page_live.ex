@@ -32,14 +32,29 @@ defmodule NotedWeb.PageLive do
 
   @impl true
   def handle_event("edit_note", %{"note" => note_id}, socket) do
-    edit_note = Notes.get_note!(note_id)
-    {:noreply, assign(socket, edit_note: edit_note)}
+    note = Notes.get_note!(note_id)
+    changeset = Notes.change_note(note)
+    {:noreply, assign(socket, edit_note: changeset)}
   end
 
   @impl true
-  def handle_event("save_note", %{"edit" => %{"title" => title, "body" => body}}, socket) do
-    Notes.update_note(socket.assigns.edit_note.id, title: title, body: body)
-    {:noreply, assign(socket, edit_note: nil)}
+  def handle_event("validate", %{"note" => params}, socket) do
+    note = Notes.get_note!(socket.assigns.edit_note.data.id)
+    changeset = Notes.validate_insert_note(note, params)
+    {:noreply, assign(socket, edit_note: changeset)}
+  end
+
+  @impl true
+  def handle_event("save", %{"note" => params}, socket) do
+    note = Notes.get_note!(socket.assigns.edit_note.data.id)
+
+    case Notes.update_note(note, params) do
+      {:error, changeset} ->
+        {:noreply, assign(socket, edit_note: changeset)}
+
+      {:ok, note} ->
+        {:noreply, assign(socket, last_edited_note: note.id, edit_note: nil)}
+    end
   end
 
   @impl true

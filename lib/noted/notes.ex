@@ -8,31 +8,27 @@ defmodule Noted.Notes do
 
   alias Noted.Notes.Note
 
-  def ingest_note(user_identifier, _message_id, full_text) do
-    create_note(full_text, "") |> IO.inspect()
+  def ingest_note(user_id, _message_id, full_text) do
+    create_note(user_id, full_text, "")
 
     Phoenix.PubSub.broadcast!(
       Noted.PubSub,
-      "note-update:#{user_identifier}",
-      {:notes_updated, user_identifier}
+      "note-update:#{user_id}",
+      {:notes_updated, user_id}
     )
   end
 
   @doc """
-  Returns the list of notes.
+  Returns the list of notes for a given user.
 
   ## Examples
 
-      iex> list_notes()
+      iex> list_notes(user_id)
       [%Note{}, ...]
 
   """
-  def list_notes do
-    Repo.all(Note)
-  end
-
-  def list_notes(user_identifier) do
-    list_notes()
+  def list_notes(user_id) do
+    Repo.all(Note, where: [user_id: user_id])
   end
 
   @doc """
@@ -69,8 +65,8 @@ defmodule Noted.Notes do
     |> Repo.insert()
   end
 
-  def create_note(title, body) do
-    create_note(%{title: title, body: body})
+  def create_note(user_id, title, body) do
+    create_note(%{user_id: user_id, title: title, body: body})
   end
 
   @doc """
@@ -89,11 +85,25 @@ defmodule Noted.Notes do
     note
     |> Note.changeset(attrs)
     |> Repo.update()
+    |> case do
+      {:ok, note} ->
+        Phoenix.PubSub.broadcast!(
+          Noted.PubSub,
+          "note-update:#{note.user_id}",
+          {:notes_updated, note.user_id}
+        )
+
+        {:ok, note}
+
+      error ->
+        error
+    end
   end
 
   def update_note(note_id, attrs) when is_integer(note_id) and is_list(attrs) do
     attrs = Enum.into(attrs, %{})
-    update_note(%Note{id: note_id}, attrs)
+    result = update_note(%Note{id: note_id}, attrs)
+    result
   end
 
   @doc """
@@ -123,5 +133,11 @@ defmodule Noted.Notes do
   """
   def change_note(%Note{} = note, attrs \\ %{}) do
     Note.changeset(note, attrs)
+  end
+
+  def validate_insert_note(note, attrs) do
+    note
+    |> Note.changeset(attrs)
+    |> Map.put(:action, :insert)
   end
 end
