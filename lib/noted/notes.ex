@@ -4,13 +4,32 @@ defmodule Noted.Notes do
   """
 
   import Ecto.Query, warn: false
+  require Logger
   alias Noted.Repo
 
   alias Noted.Notes.Note
   alias Noted.Notes.Tag
-  alias Noted.Notes.NotesTags
 
   @tag_pattern ~r/#([a-z]+)/
+
+  def format_body(nil) do
+    {:safe, ""}
+  end
+
+  def format_body(body) do
+    case Earmark.as_html(body) do
+      {:ok, html, []} ->
+        {:safe, html}
+
+      {:ok, html, warnings} ->
+        Logger.warn("Warnings from markdown parsing", warnings: warnings)
+        {:safe, html}
+
+      error ->
+        Logger.error("Error in markdown parsing", error: error)
+        {:safe, ""}
+    end
+  end
 
   def ingest_note(user_id, _message_id, full_text) do
     parts =
@@ -37,9 +56,7 @@ defmodule Noted.Notes do
       |> Enum.reject(&is_nil/1)
       |> ensure_tags(user_id)
 
-    Repo.transaction(fn ->
-      {:ok, note} = create_note(user_id, title, body, tags)
-    end)
+    {:ok, _note} = create_note(user_id, title, body, tags)
 
     Phoenix.PubSub.broadcast!(
       Noted.PubSub,
@@ -58,7 +75,12 @@ defmodule Noted.Notes do
 
   """
   def list_notes(user_id) do
-    Repo.all(Note, where: [user_id: user_id])
+    query =
+      from n in Note,
+        where: [user_id: ^user_id],
+        preload: [:tags]
+
+    Repo.all(query)
   end
 
   @doc """

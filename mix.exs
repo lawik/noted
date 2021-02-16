@@ -47,6 +47,7 @@ defmodule Noted.MixProject do
       {:gettext, "~> 0.11"},
       {:jason, "~> 1.0"},
       {:plug_cowboy, "~> 2.0"},
+      {:earmark, "~> 1.4"},
       {:telegram, git: "https://github.com/visciang/telegram.git", tag: "0.7.0"},
       # Gun mismatch with telegram and cowboy
       {:cowlib, "~> 2.7", override: true}

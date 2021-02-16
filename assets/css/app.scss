@@ -17,17 +17,37 @@
     @apply text-xl;
   }
 
-  ul.styled {
+  ul.styled,
+  .markdown ul {
     @apply list-disc list-inside;
   }
 
-  button {
+  button,
+  a.button {
     @apply bg-gray-400 text-white rounded-lg px-4 py-2 m-2;
+  }
+
+  a.button,
+  a:link.button,
+  a:visited.button,
+  a:hover.button {
+    @apply no-underline text-white;
   }
 
   input[type="submit"],
   button[type="submit"] {
     @apply bg-purple-600 text-white rounded-lg px-4 py-2 m-2;
+  }
+
+  a,
+  a:link,
+  a:visited,
+  a:active {
+    @apply underline text-purple-900;
+  }
+
+  a:hover {
+    @apply text-purple-600;
   }
 }
 
