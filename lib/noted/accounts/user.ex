@@ -14,5 +14,6 @@ defmodule Noted.Accounts.User do
     user
     |> cast(attrs, [:telegram_id, :telegram_data])
     |> validate_required([:telegram_id, :telegram_data])
+    |> unique_constraint(:unique_telegram_id, name: :users_unique_telegram_id)
   end
 end

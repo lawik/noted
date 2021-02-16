@@ -3,6 +3,7 @@ defmodule NotedWeb.PageLive do
 
   alias NotedWeb.Live
   alias Noted.Notes
+  import NotedWeb.Router.Helpers, only: [note_path: 3]
 
   @impl true
   def mount(_params, session, socket) do
@@ -32,9 +33,7 @@ defmodule NotedWeb.PageLive do
 
   @impl true
   def handle_event("edit_note", %{"note" => note_id}, socket) do
-    note = Notes.get_note!(note_id)
-    changeset = Notes.change_note(note)
-    {:noreply, assign(socket, edit_note: changeset)}
+    {:noreply, redirect(socket, to: note_path(socket, :index, note_id))}
   end
 
   @impl true
@@ -42,23 +41,5 @@ defmodule NotedWeb.PageLive do
     note = Notes.get_note!(socket.assigns.edit_note.data.id)
     changeset = Notes.validate_insert_note(note, params)
     {:noreply, assign(socket, edit_note: changeset)}
-  end
-
-  @impl true
-  def handle_event("save", %{"note" => params}, socket) do
-    note = Notes.get_note!(socket.assigns.edit_note.data.id)
-
-    case Notes.update_note(note, params) do
-      {:error, changeset} ->
-        {:noreply, assign(socket, edit_note: changeset)}
-
-      {:ok, note} ->
-        {:noreply, assign(socket, last_edited_note: note.id, edit_note: nil)}
-    end
-  end
-
-  @impl true
-  def handle_event("close_note", _, socket) do
-    {:noreply, assign(socket, edit_note: nil)}
   end
 end

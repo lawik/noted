@@ -7,14 +7,39 @@ defmodule Noted.Notes do
   alias Noted.Repo
 
   alias Noted.Notes.Note
+  alias Noted.Notes.Tag
+  alias Noted.Notes.NotesTags
+
+  @tag_pattern ~r/#([a-z]+)/
 
   def ingest_note(user_id, _message_id, full_text) do
-    [title, body] =
+    parts =
       full_text
       |> String.split("\n", parts: 2)
       |> Enum.map(&String.trim/1)
 
-    create_note(user_id, title, body)
+    {title, body} =
+      case parts do
+        [title, body] -> {title, body}
+        [title] -> {title, ""}
+        _ -> {String.trim(full_text), ""}
+      end
+
+    tags =
+      @tag_pattern
+      |> Regex.scan(full_text)
+      |> Enum.map(fn item ->
+        case item do
+          [_, tag] -> tag
+          _ -> nil
+        end
+      end)
+      |> Enum.reject(&is_nil/1)
+      |> ensure_tags(user_id)
+
+    Repo.transaction(fn ->
+      {:ok, note} = create_note(user_id, title, body, tags)
+    end)
 
     Phoenix.PubSub.broadcast!(
       Noted.PubSub,
@@ -50,7 +75,11 @@ defmodule Noted.Notes do
       ** (Ecto.NoResultsError)
 
   """
-  def get_note!(id), do: Repo.get!(Note, id)
+  def get_note!(id) do
+    Note
+    |> Repo.get!(id)
+    |> Repo.preload(:tags)
+  end
 
   @doc """
   Creates a note.
@@ -70,8 +99,13 @@ defmodule Noted.Notes do
     |> Repo.insert()
   end
 
-  def create_note(user_id, title, body) do
-    create_note(%{user_id: user_id, title: title, body: body})
+  def create_note(user_id, title, body, tags) do
+    base = %{user_id: user_id, title: title, body: body}
+
+    %Note{}
+    |> Note.changeset(base)
+    |> Note.add_tags(tags)
+    |> Repo.insert()
   end
 
   @doc """
@@ -144,5 +178,133 @@ defmodule Noted.Notes do
     note
     |> Note.changeset(attrs)
     |> Map.put(:action, :insert)
+  end
+
+  def ensure_tags([], _) do
+    []
+  end
+
+  def ensure_tags(tag_names, user_id) do
+    tag_names = Enum.map(tag_names, &String.downcase/1)
+
+    {:ok, tags} =
+      Repo.transaction(fn ->
+        existing_tags =
+          Tag
+          |> where([t], t.user_id == ^user_id)
+          |> where([t], t.name in ^tag_names)
+          |> Repo.all()
+
+        created_tags =
+          tag_names
+          |> Enum.reject(fn name ->
+            Enum.any?(existing_tags, fn tag ->
+              tag.name == name
+            end)
+          end)
+          |> Enum.map(fn name ->
+            create_tag!(%{name: name, user_id: user_id})
+          end)
+
+        existing_tags ++ created_tags
+      end)
+
+    tags
+  end
+
+  @doc """
+  Returns the list of tags.
+
+  ## Examples
+
+      iex> list_tags()
+      [%Tag{}, ...]
+
+  """
+  def list_tags do
+    Repo.all(Tag)
+  end
+
+  @doc """
+  Gets a single tag.
+
+  Raises `Ecto.NoResultsError` if the Tag does not exist.
+
+  ## Examples
+
+      iex> get_tag!(123)
+      %Tag{}
+
+      iex> get_tag!(456)
+      ** (Ecto.NoResultsError)
+
+  """
+  def get_tag!(id), do: Repo.get!(Tag, id)
+
+  @doc """
+  Creates a tag.
+
+  ## Examples
+
+      iex> create_tag(%{field: value})
+      {:ok, %Tag{}}
+
+      iex> create_tag(%{field: bad_value})
+      {:error, %Ecto.Changeset{}}
+
+  """
+  def create_tag!(attrs \\ %{}) do
+    attrs = %{attrs | name: String.downcase(attrs.name)}
+
+    %Tag{}
+    |> Tag.changeset(attrs)
+    |> Repo.insert!()
+  end
+
+  @doc """
+  Updates a tag.
+
+  ## Examples
+
+      iex> update_tag(tag, %{field: new_value})
+      {:ok, %Tag{}}
+
+      iex> update_tag(tag, %{field: bad_value})
+      {:error, %Ecto.Changeset{}}
+
+  """
+  def update_tag(%Tag{} = tag, attrs) do
+    tag
+    |> Tag.changeset(attrs)
+    |> Repo.update()
+  end
+
+  @doc """
+  Deletes a tag.
+
+  ## Examples
+
+      iex> delete_tag(tag)
+      {:ok, %Tag{}}
+
+      iex> delete_tag(tag)
+      {:error, %Ecto.Changeset{}}
+
+  """
+  def delete_tag(%Tag{} = tag) do
+    Repo.delete(tag)
+  end
+
+  @doc """
+  Returns an `%Ecto.Changeset{}` for tracking tag changes.
+
+  ## Examples
+
+      iex> change_tag(tag)
+      %Ecto.Changeset{data: %Tag{}}
+
+  """
+  def change_tag(%Tag{} = tag, attrs \\ %{}) do
+    Tag.changeset(tag, attrs)
   end
 end
