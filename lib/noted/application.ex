@@ -6,20 +6,19 @@ defmodule Noted.Application do
   use Application
 
   def start(_type, _args) do
-    children = [
-      # Start the Ecto repository
-      Noted.Repo,
-      # Start the Telemetry supervisor
-      NotedWeb.Telemetry,
-      # Start the PubSub system
-      {Phoenix.PubSub, name: Noted.PubSub},
-      # Start the Endpoint (http/https)
-      NotedWeb.Endpoint,
-      # Telegram bot stuff
-      Noted.Telegram.Auth,
-      {Noted.Telegram.Bot, bot_key: System.get_env("TELEGRAM_BOT_SECRET")},
-      {Noted.Telegram.BotPoller, bot_key: System.get_env("TELEGRAM_BOT_SECRET")}
-    ]
+    children =
+      [
+        # Start the Ecto repository
+        Noted.Repo,
+        # Start the Telemetry supervisor
+        NotedWeb.Telemetry,
+        # Start the PubSub system
+        {Phoenix.PubSub, name: Noted.PubSub},
+        # Start the Endpoint (http/https)
+        NotedWeb.Endpoint,
+        # Telegram bot stuff
+        Noted.Telegram.Auth
+      ] ++ load_bots()
 
     # See https://hexdocs.pm/elixir/Supervisor.html
     # for other strategies and supported options
@@ -32,5 +31,15 @@ defmodule Noted.Application do
   def config_change(changed, _new, removed) do
     NotedWeb.Endpoint.config_change(changed, removed)
     :ok
+  end
+
+  defp load_bots do
+    # Load any keys you like, I load a single one from an environment variable
+    # Generate a list of bots from that
+    [System.get_env("TELEGRAM_BOT_SECRET")]
+    |> Enum.reject(&is_nil/1)
+    |> Enum.map(fn key ->
+      {Noted.Telegram.BotSupervisor, key}
+    end)
   end
 end
