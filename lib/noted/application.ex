@@ -5,7 +5,11 @@ defmodule Noted.Application do
 
   use Application
 
+  alias Noted.Env
+
   def start(_type, _args) do
+    Env.require("TELEGRAM_BOT_NAME")
+
     children =
       [
         # Start the Ecto repository
@@ -36,7 +40,7 @@ defmodule Noted.Application do
   defp load_bots do
     # Load any keys you like, I load a single one from an environment variable
     # Generate a list of bots from that
-    [System.get_env("TELEGRAM_BOT_SECRET")]
+    [Env.expect("TELEGRAM_BOT_SECRET")]
     |> Enum.reject(&is_nil/1)
     |> Enum.map(fn key ->
       {Noted.Telegram.BotSupervisor, key}

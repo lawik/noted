@@ -1,6 +1,7 @@
 defmodule NotedWeb.Live do
   alias Phoenix.LiveView
   alias Noted.Telegram.Auth
+  alias Noted.Env
 
   def mount_auth(socket, session) do
     user = Auth.get_user_from_session(session)
@@ -66,6 +67,6 @@ defmodule NotedWeb.Live do
   end
 
   defp default_bot_name do
-    System.get_env("TELEGRAM_BOT_NAME")
+    Env.require("TELEGRAM_BOT_NAME")
   end
 end
