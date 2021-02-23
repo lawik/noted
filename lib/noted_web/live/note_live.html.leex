@@ -1,9 +1,9 @@
 <button phx-click="close">Close</button>
 
-<%= f = form_for @changeset, "#", [
+<%= form_for @changeset, "#", [
         phx_change: :validate,
         phx_submit: :save
-    ] %>
+    ], fn f -> %>
     <%= text_input(f, :title,
         class: "block w-full p-4 focus:outline-none border-purple-600 border-2 bg-color-white text-black rounded-lg my-2"
         ) %>
@@ -18,4 +18,4 @@
     <% end %>
     </div>
     <%= submit("Save") %>
-</form>
+<% end %>

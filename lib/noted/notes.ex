@@ -31,7 +31,7 @@ defmodule Noted.Notes do
     end
   end
 
-  def ingest_note(user_id, _message_id, full_text) do
+  def ingest_note(user_id, full_text) do
     parts =
       full_text
       |> String.split("\n", parts: 2)
@@ -56,13 +56,15 @@ defmodule Noted.Notes do
       |> Enum.reject(&is_nil/1)
       |> ensure_tags(user_id)
 
-    {:ok, _note} = create_note(user_id, title, body, tags)
+    {:ok, note} = create_note(user_id, title, body, tags)
 
     Phoenix.PubSub.broadcast!(
       Noted.PubSub,
       "note-update:#{user_id}",
       {:notes_updated, user_id}
     )
+
+    {:ok, note}
   end
 
   @doc """
@@ -181,6 +183,10 @@ defmodule Noted.Notes do
   """
   def delete_note(%Note{} = note) do
     Repo.delete(note)
+  end
+
+  def delete_note(note_id) do
+    Repo.delete(%Note{id: note_id})
   end
 
   @doc """

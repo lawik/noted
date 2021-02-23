@@ -1,3 +1,20 @@
-<%= if not is_nil(@notes) and is_nil(@edit_note) do
-live_component @socket, NotedWeb.Live.Components.NoteList, notes: @notes
+<form action="#" phx-submit="search" class="my-6">
+    <%= text_input(:search, :text,
+        class: "block w-full p-4 focus:outline-none border-gray-600 border-2 text-black rounded-lg my-2",
+        phx_change: "search",
+        placeholder: "Search",
+        value: @search) %>
+    <%= submit("Search", style: "display: none") %>
+</form>
+
+<form action="#" phx-submit="save">
+    <label>Create note</label>
+    <%= textarea(:create, :body,
+        class: "block w-full p-4 focus:outline-none border-purple-600 border-2 bg-color-white text-black rounded-lg my-2",
+        placeholder: "New note goes here"
+        ) %>
+    <%= submit("Save") %>
+</form>
+<%= if not is_nil(@notes) do
+live_component @socket, NotedWeb.Live.Components.NoteList, notes: @found_notes
 end %>

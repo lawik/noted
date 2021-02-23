@@ -67,7 +67,7 @@ defmodule Noted.Telegram.Bot do
         )
 
       %{id: user_id} ->
-        Noted.Notes.ingest_note(user_id, message_id, text)
+        Noted.Notes.ingest_note(user_id, text)
         simple_reply(update, "Got it", state)
     end
   end

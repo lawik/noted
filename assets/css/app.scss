@@ -34,6 +34,11 @@
     @apply no-underline text-white;
   }
 
+  button:hover,
+  a.button:hover {
+    @apply bg-gray-600;
+  }
+
   input[type="submit"],
   button[type="submit"] {
     @apply bg-purple-600 text-white rounded-lg px-4 py-2 m-2;
