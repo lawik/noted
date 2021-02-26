@@ -1,7 +1,6 @@
-<form action="#" phx-submit="search" class="my-6">
+<form action="#" phx-submit="search" class="my-6" phx-change="search">
     <%= text_input(:search, :text,
         class: "block w-full p-4 focus:outline-none border-gray-600 border-2 text-black rounded-lg my-2",
-        phx_change: "search",
         placeholder: "Search",
         value: @search) %>
     <%= submit("Search", style: "display: none") %>

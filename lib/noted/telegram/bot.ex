@@ -4,6 +4,8 @@ defmodule Noted.Telegram.Bot do
 
   alias Noted.Telegram.Auth
 
+  @default_file_path "/tmp/telegram_bot_files"
+
   def start_link(opts) do
     GenServer.start_link(__MODULE__, opts, opts)
   end
@@ -53,22 +55,80 @@ defmodule Noted.Telegram.Bot do
   def handle_update(
         %{
           "message" => %{
-            "from" => %{"id" => user_identifier},
             "message_id" => message_id,
             "text" => text
           }
         } = update,
         state
       ) do
-    case Noted.Accounts.get_user_by_telegram_id(user_identifier) do
-      nil ->
-        Logger.error("Received ingest message from non-existant user.",
-          telegram_user_identifier: user_identifier
-        )
+    with {:ok, user_id} <- user_or_error(update) do
+      Noted.Notes.ingest_note(user_id, text)
+      simple_reply(update, "Got it", state)
+    end
+  end
 
-      %{id: user_id} ->
-        Noted.Notes.ingest_note(user_id, text)
-        simple_reply(update, "Got it", state)
+  def handle_update(
+        %{
+          "message" =>
+            %{
+              "document" => file
+            } = message
+        } = update,
+        state
+      ) do
+    %{"file_id" => file_id, "file_unique_id" => file_unique_id, "mime_type" => mimetype} = file
+
+    path = download_file!(state, file_id)
+    caption = Map.get(message, "caption", "Unnamed file (#{file_unique_id})")
+
+    with {:ok, user_id} <- user_or_error(update) do
+      {:ok, note} = Noted.Notes.ingest_note(user_id, caption)
+
+      {:ok, _file} =
+        Noted.Notes.create_file(%{
+          note_id: note.id,
+          mimetype: mimetype,
+          path: path,
+          size: file["file_size"]
+        })
+
+      simple_reply(update, "Filed that away", state)
+    end
+  end
+
+  def handle_update(
+        %{
+          "message" =>
+            %{
+              "photo" => files
+            } = message
+        } = update,
+        state
+      ) do
+    %{"file_id" => file_id, "file_unique_id" => file_unique_id} = file_meta = get_largest(files)
+    path = download_file!(state, file_id)
+    caption = Map.get(message, "caption", "Unnamed image (#{file_unique_id})")
+
+    mimetype =
+      case Path.extname(path) do
+        ".jpg" -> "image/jpeg"
+        ".jpeg" -> "image/jpeg"
+        ".gif" -> "image/gif"
+        ".png" -> "image/png"
+      end
+
+    with {:ok, user_id} <- user_or_error(update) do
+      {:ok, note} = Noted.Notes.ingest_note(user_id, caption)
+
+      {:ok, _file} =
+        Noted.Notes.create_file(%{
+          note_id: note.id,
+          mimetype: mimetype,
+          path: path,
+          size: file_meta["file_size"]
+        })
+
+      simple_reply(update, "Got the picture", state)
     end
   end
 
@@ -83,5 +143,42 @@ defmodule Noted.Telegram.Bot do
       chat_id: chat_id,
       text: message
     )
+  end
+
+  defp user_or_error(%{"message" => %{"from" => %{"id" => user_identifier}}}) do
+    case Noted.Accounts.get_user_by_telegram_id(user_identifier) do
+      nil ->
+        Logger.error("Received ingest message from non-existant user.",
+          telegram_user_identifier: user_identifier
+        )
+
+        {:error, :no_user}
+
+      %{id: user_id} ->
+        {:ok, user_id}
+    end
+  end
+
+  defp get_largest(files) do
+    Enum.reduce(files, nil, fn file, largest ->
+      if is_nil(largest) or file["file_size"] > largest["file_size"] do
+        file
+      else
+        largest
+      end
+    end)
+  end
+
+  defp download_file!(state, file_id) do
+    {:ok, %{"file_path" => file_path} = file} =
+      Telegram.Api.request(state.bot_key, "getFile", file_id: file_id)
+
+    ext = Path.extname(file_path)
+
+    {:ok, file_data} = Telegram.Api.file(state.bot_key, file_path)
+    dir = Noted.Env.expect("FILE_STORAGE_DIR", @default_file_path)
+    path = Path.join(dir, file_id <> ext)
+    File.write(path, file_data)
+    path
   end
 end

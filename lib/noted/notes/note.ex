@@ -11,6 +11,7 @@ defmodule Noted.Notes.Note do
     belongs_to :user, Noted.Accounts.User
 
     many_to_many :tags, Noted.Notes.Tag, join_through: NotesTags
+    has_many :files, Noted.Notes.File
     timestamps()
   end
 

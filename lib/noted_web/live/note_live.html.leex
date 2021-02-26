@@ -13,9 +13,25 @@
         ) %>
         <%= error_tag f, :body %>
     <div>
+    <section>
+    <%= for image <- Enum.filter(@note.files, & String.starts_with?(&1.mimetype, "image/")) do %>
+        <div>
+        image: <%= image.path %>
+        </div>
+    <% end %>
+    </section>
+    <section>
+    <%= for file <- Enum.reject(@note.files, & String.starts_with?(&1.mimetype, "image/")) do %>
+        <div>
+        file: <%= file.path %>
+        </div>
+    <% end %>
+    </section>
+    <section>
     <%= for tag <- @note.tags do %>
     <span>#<%= tag.name %></span>
     <% end %>
+    </section>
     </div>
     <%= submit("Save") %>
 <% end %>
