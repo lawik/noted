@@ -177,8 +177,9 @@ defmodule Noted.Telegram.Bot do
 
     {:ok, file_data} = Telegram.Api.file(state.bot_key, file_path)
     dir = Noted.Env.expect("FILE_STORAGE_DIR", @default_file_path)
+    File.mkdir_p!(dir)
     path = Path.join(dir, file_id <> ext)
-    File.write(path, file_data)
+    File.write!(path, file_data)
     path
   end
 end

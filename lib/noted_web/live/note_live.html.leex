@@ -16,16 +16,18 @@
     <section>
     <%= for image <- Enum.filter(@note.files, & String.starts_with?(&1.mimetype, "image/")) do %>
         <div>
-        image: <%= image.path %>
+            <img src="<%= Routes.file_path(@socket, :serve, image.id) %>" />
         </div>
     <% end %>
     </section>
     <section>
+    <ul>
     <%= for file <- Enum.reject(@note.files, & String.starts_with?(&1.mimetype, "image/")) do %>
-        <div>
-        file: <%= file.path %>
-        </div>
+        <li>
+            <a href="<%= Routes.file_path(@socket, :serve, file.id) %>">file <%= file.id %></a>
+        </li>
     <% end %>
+    </ul>
     </section>
     <section>
     <%= for tag <- @note.tags do %>
