@@ -183,6 +183,12 @@ defmodule Noted.Notes do
 
   """
   def delete_note(%Note{} = note) do
+    note = get_note!(note.id)
+
+    Enum.each(note.files, fn file ->
+      delete_file(file)
+    end)
+
     Repo.delete(note)
   end
 
@@ -337,7 +343,7 @@ defmodule Noted.Notes do
     Tag.changeset(tag, attrs)
   end
 
-  alias Noted.Notes.File
+  alias Noted.Notes.File, as: FFile
 
   @doc """
   Returns the list of files.
@@ -349,7 +355,7 @@ defmodule Noted.Notes do
 
   """
   def list_files do
-    Repo.all(File)
+    Repo.all(FFile)
   end
 
   @doc """
@@ -366,7 +372,7 @@ defmodule Noted.Notes do
       ** (Ecto.NoResultsError)
 
   """
-  def get_file!(id), do: Repo.get!(File, id)
+  def get_file!(id), do: Repo.get!(FFile, id)
 
   @doc """
   Creates a file.
@@ -381,8 +387,8 @@ defmodule Noted.Notes do
 
   """
   def create_file(attrs \\ %{}) do
-    %File{}
-    |> File.changeset(attrs)
+    %FFile{}
+    |> FFile.changeset(attrs)
     |> Repo.insert()
   end
 
@@ -398,9 +404,9 @@ defmodule Noted.Notes do
       {:error, %Ecto.Changeset{}}
 
   """
-  def update_file(%File{} = file, attrs) do
+  def update_file(%FFile{} = file, attrs) do
     file
-    |> File.changeset(attrs)
+    |> FFile.changeset(attrs)
     |> Repo.update()
   end
 
@@ -416,7 +422,8 @@ defmodule Noted.Notes do
       {:error, %Ecto.Changeset{}}
 
   """
-  def delete_file(%File{} = file) do
+  def delete_file(%FFile{} = file) do
+    File.rm!(file.path)
     Repo.delete(file)
   end
 
@@ -429,7 +436,7 @@ defmodule Noted.Notes do
       %Ecto.Changeset{data: %File{}}
 
   """
-  def change_file(%File{} = file, attrs \\ %{}) do
-    File.changeset(file, attrs)
+  def change_file(%FFile{} = file, attrs \\ %{}) do
+    FFile.changeset(file, attrs)
   end
 end

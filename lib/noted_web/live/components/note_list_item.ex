@@ -3,7 +3,7 @@ defmodule NotedWeb.Live.Components.NoteListItem do
 
   def render(assigns) do
     ~L"""
-    <li class="my-2 p-2 bg-gray-200 rounded-lg" x-data="{ expand: false, show_delete: false }">
+    <li class="my-2 p-2 bg-gray-200 rounded-lg" id="note-<%= @note.id %>" x-data="{ expand: false, show_delete: false }">
       <div class="flex">
         <h2 class="flex-grow cursor-pointer"
             @click="expand = !expand">

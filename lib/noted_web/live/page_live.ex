@@ -111,7 +111,10 @@ defmodule NotedWeb.PageLive do
   end
 
   defp refresh_notes(socket) do
-    notes = Notes.list_notes(socket.assigns.auth.user.id)
+    notes =
+      socket.assigns.auth.user.id
+      |> Notes.list_notes()
+      |> Enum.reverse()
 
     socket
     |> Live.assign_authed(notes: notes)
