@@ -3,54 +3,53 @@ defmodule NotedWeb.Live.Components.NoteListItem do
 
   def render(assigns) do
     ~L"""
-    <li class="my-2 p-2 bg-gray-200 rounded-lg" id="note-<%= @note.id %>" x-data="{ expand: false, show_delete: false }">
-      <div class="flex">
-        <h2 class="flex-grow cursor-pointer"
-            @click="expand = !expand">
+    <li class="flex bg-white p-3 pl-14 border-b border-b-gray-400 relative" id="note-<%= @note.id %>" x-data="{ show_delete: false }">
+      <div class="flex-auto">
+        <h2 class="text-2xl">
             <%= @note.title %>
         </h2>
 
-        <div class="flex-grow-0">
-          <div class="flex">
-            <button
-              class="px-2 py-1 text-sm bg-gray-300 flex-grow-0"
-              @click="show_delete = !show_delete">
-            Delete
-            </button>
-            <a href="<%= Routes.note_path(@socket, :index, @note.id) %>"
-              class="button px-2 py-1 text-sm flex-grow-0"
-              phx-value-note="<%= @note.id %>"
-              phx-click="edit_note">
-            Edit
-            </a>
-          </div>
-          <div x-show="show_delete">
-            <p>Confirm delete?</p>
-            <button
-              class="px-2 py-1 text-sm bg-red-600"
-              phx-value-note="<%= @note.id %>"
-              phx-click="delete_note"
-              >Yes, delete</button>
-          </div>
-        </div>
-
-      </div>
-      <template x-if="expand">
-        <%= if @note.body do %>
-        <div class="markdown">
-          <%= Noted.Notes.format_body(@note.body) %>
-        </div>
-        <% else %>
-        <div class="markdown">
-        - empty -
-        </div>
-        <% end %>
-      </template>
-      <div>
+        <div class="my-3">
         <%= for tag <- @note.tags do %>
           <span>#<%= tag.name %></span>
         <% end %>
+        </div>
       </div>
+    <!--        <div x-show="show_delete">
+          <p>Confirm delete?</p>
+          <button
+            class="px-2 py-1 text-sm bg-red-600"
+            phx-value-note="<%= @note.id %>"
+            phx-click="delete_note"
+            >Yes, delete</button>
+        </div>-->
+        <a href="<%= Routes.note_path(@socket, :index, @note.id) %>"
+          class="block flex-none w-8 text-gray-400"
+          phx-value-note="<%= @note.id %>"
+          phx-click="edit_note"
+          title="Edit note">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+          </svg>
+        </a>
+
+
+
+        <input type="checkbox"
+          phx-value-selected="<%= @note.id %>"
+          value="selected"
+          class="appearance-none absolute top-4 left-4 block w-6 h-6 border border-gray-400 rounded-full checked:border-0 checked:bg-blue-400"
+          <%= if assigns[:selected][@note.id] do %>checked="checked" <% end %> />
+
+    <!--
+        <button
+          class="text-gray-300 w-6 absolute top-4 right-4"
+          @click="show_delete = !show_delete" title="Delete">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+        -->
     </li>
     """
   end

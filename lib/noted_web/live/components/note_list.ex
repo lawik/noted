@@ -3,7 +3,7 @@ defmodule NotedWeb.Live.Components.NoteList do
 
   def render(assigns) do
     ~L"""
-    <ul role="list">
+    <ul role="list" class="">
     <%= for note <- @notes do %>
     <%= live_component @socket, NotedWeb.Live.Components.NoteListItem, note: note %>
     <% end %>

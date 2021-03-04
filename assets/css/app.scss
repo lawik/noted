@@ -9,6 +9,11 @@
 /* The Basics */
 
 @layer base {
+  body {
+    @apply bg-gray-600;
+  }
+
+  /*
   h1 {
     @apply text-2xl;
   }
@@ -54,6 +59,7 @@
   a:hover {
     @apply text-purple-600;
   }
+  */
 }
 
 /* LiveView specific classes for your customizations */

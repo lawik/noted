@@ -3,7 +3,7 @@ defmodule NotedWeb.Live.Components.Auth do
 
   def render(assigns) do
     ~L"""
-    <section class="text-center my-8">
+    <section class="text-center my-8 text-4xl text-gray-200">
     <%= if @auth.user do %>
       <p>
       <%= @auth.user.telegram_data["first_name"] || @auth.user.telegram_data["username"] %> <%= @auth.user.telegram_data["last_name"] || "" %>
