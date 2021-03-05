@@ -13,6 +13,10 @@
     @apply bg-gray-600;
   }
 
+  iframe[hidden] {
+    display: none;
+  }
+
   /*
   h1 {
     @apply text-2xl;

@@ -1,4 +1,4 @@
-<main role="main" class="container mx-auto px-4">
+<main role="main" class="container mx-auto my-4 mb-8">
   <p class="alert alert-info m-4" role="alert"
     phx-click="lv:clear-flash"
     phx-value-key="info"><%= live_flash(@flash, :info) %></p>
@@ -7,8 +7,10 @@
     phx-click="lv:clear-flash"
     phx-value-key="error"><%= live_flash(@flash, :error) %></p>
 
+  <div class="md:mx-4">
   <%= live_component @socket, NotedWeb.Live.Components.Auth, auth: @auth %>
   <%= if assigns[:auth] && assigns.auth[:user] do %>
     <%= @inner_content %>
   <% end %>
+  </div>
 </main>

@@ -3,9 +3,9 @@ defmodule NotedWeb.Live.Components.NoteListItem do
 
   def render(assigns) do
     ~L"""
-    <li class="flex bg-white p-3 pl-14 border-b border-b-gray-400 relative" id="note-<%= @note.id %>" x-data="{ show_delete: false }">
-      <div class="flex-auto">
-        <h2 class="text-2xl text-gray-800">
+    <li class="flex relative p-3 pl-14 border-b border-b-gray-400 last:border-0" id="note-<%= @note.id %>" x-data="{ show_delete: false }">
+      <div class="flex-auto truncate">
+        <h2 class="text-2xl text-gray-800 truncate">
             <%= @note.title %>
         </h2>
 
