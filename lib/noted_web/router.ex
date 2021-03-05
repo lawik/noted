@@ -22,6 +22,7 @@ defmodule NotedWeb.Router do
     live "/note/:note_id", NoteLive, :index
     get "/user-session/:auth_key", SessionController, :session_redirect
     get "/file/:id", FileController, :serve
+    get "/profile_photo/:id", FileController, :serve_user
   end
 
   # Other scopes may use custom stacks.

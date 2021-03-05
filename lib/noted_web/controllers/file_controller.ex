@@ -13,4 +13,16 @@ defmodule NotedWeb.FileController do
       put_status(conn, :not_found)
     end
   end
+
+  def serve_user(conn, %{"id" => user_id}) do
+    auth_user_id = get_session(conn, "user_id")
+    user = Noted.Accounts.get_user!(user_id)
+
+    # Check user owns the file
+    if auth_user_id == user.id do
+      send_download(conn, {:file, user.photo_path}, filename: Path.basename(user.photo_path))
+    else
+      put_status(conn, :not_found)
+    end
+  end
 end

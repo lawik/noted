@@ -5,6 +5,7 @@ defmodule Noted.Accounts.User do
   schema "users" do
     field(:telegram_data, :map)
     field(:telegram_id, :integer)
+    field(:photo_path, :string)
 
     timestamps()
   end
@@ -12,7 +13,7 @@ defmodule Noted.Accounts.User do
   @doc false
   def changeset(user, attrs) do
     user
-    |> cast(attrs, [:telegram_id, :telegram_data])
+    |> cast(attrs, [:telegram_id, :telegram_data, :photo_path])
     |> validate_required([:telegram_id, :telegram_data])
     |> unique_constraint(:unique_telegram_id, name: :users_unique_telegram_id)
   end

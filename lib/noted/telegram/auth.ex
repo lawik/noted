@@ -55,19 +55,20 @@ defmodule Noted.Telegram.Auth do
       [{pid, _} | _] ->
         save_user_data(auth_key, telegram_user_id)
 
-        case Noted.Accounts.get_user_by_telegram_id(telegram_user_id) do
-          nil ->
-            Noted.Accounts.create_user(%{
-              telegram_id: telegram_user_id,
-              telegram_data: user_information
-            })
+        result =
+          case Noted.Accounts.get_user_by_telegram_id(telegram_user_id) do
+            nil ->
+              Noted.Accounts.create_user(%{
+                telegram_id: telegram_user_id,
+                telegram_data: user_information
+              })
 
-          user ->
-            Noted.Accounts.update_user(user, %{telegram_data: user_information})
-        end
+            user ->
+              Noted.Accounts.update_user(user, %{telegram_data: user_information})
+          end
 
         send(pid, {:authenticated, user_information, auth_key})
-        :ok
+        result
     end
   end
 

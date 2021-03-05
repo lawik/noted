@@ -5,7 +5,7 @@ defmodule NotedWeb.Live.Components.NoteListItem do
     ~L"""
     <li class="flex bg-white p-3 pl-14 border-b border-b-gray-400 relative" id="note-<%= @note.id %>" x-data="{ show_delete: false }">
       <div class="flex-auto">
-        <h2 class="text-2xl">
+        <h2 class="text-2xl text-gray-800">
             <%= @note.title %>
         </h2>
 

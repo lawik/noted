@@ -3,6 +3,7 @@ defmodule Noted.Telegram.Bot do
   require Logger
 
   alias Noted.Telegram.Auth
+  alias Noted.Accounts
 
   @default_file_path "/tmp/telegram_bot_files"
 
@@ -47,8 +48,13 @@ defmodule Noted.Telegram.Bot do
         } = update,
         state
       ) do
-    Auth.confirm_authentication(key, user)
-    simple_reply(update, "Welcome", state)
+    case Auth.confirm_authentication(key, user) do
+      {:ok, user_account} ->
+        simple_reply(update, "Welcome", state)
+
+      {:error, error} ->
+        simple_reply(update, "An error occurred: #{inspect(error)}", state)
+    end
   end
 
   # A normal text message update
@@ -62,6 +68,8 @@ defmodule Noted.Telegram.Bot do
         state
       ) do
     with {:ok, user_id} <- user_or_error(update) do
+      user = Accounts.get_user!(user_id)
+      get_photo_if_missing(state, update, user)
       Noted.Notes.ingest_note(user_id, text)
       simple_reply(update, "Got it", state)
     end
@@ -159,6 +167,32 @@ defmodule Noted.Telegram.Bot do
     end
   end
 
+  defp get_photo_if_missing(
+         %{bot_key: key} = state,
+         %{"message" => %{"from" => %{"id" => user_id}}},
+         %{photo_path: nil} = user
+       ) do
+    # Om inte, kolla om användaren har ett foto på Telegram
+    case Telegram.Api.request(key, "getUserProfilePhotos", user_id: user_id) do
+      {:ok, %{"photos" => [photos | _]}} ->
+        case get_largest(photos) do
+          %{"file_id" => file_id} ->
+            path = download_file!(state, file_id)
+            Accounts.update_user(user, %{photo_path: path})
+
+          _ ->
+            nil
+        end
+
+      _ ->
+        nil
+    end
+
+    # Om det stämmer,  hämta och spara fotot
+  end
+
+  defp get_photo_if_missing(_, _, _), do: nil
+
   defp get_largest(files) do
     Enum.reduce(files, nil, fn file, largest ->
       if is_nil(largest) or file["file_size"] > largest["file_size"] do
@@ -170,7 +204,7 @@ defmodule Noted.Telegram.Bot do
   end
 
   defp download_file!(state, file_id) do
-    {:ok, %{"file_path" => file_path} = file} =
+    {:ok, %{"file_path" => file_path}} =
       Telegram.Api.request(state.bot_key, "getFile", file_id: file_id)
 
     ext = Path.extname(file_path)

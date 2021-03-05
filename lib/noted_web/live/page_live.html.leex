@@ -1,5 +1,6 @@
 <form action="#" phx-submit="search" class="bg-gray-500" phx-change="search">
     <%= text_input(:search, :text,
+        autocomplete: "off",
         class: "p-3 text-gray-200 w-full text-xl bg-transparent focus:outline-none",
         placeholder: "Search",
         value: @search) %>
