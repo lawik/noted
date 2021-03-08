@@ -9,4 +9,10 @@ defmodule NotedWeb.SessionController do
     |> put_session("user_id", user.id)
     |> redirect(to: "/")
   end
+
+  def logout(conn, _) do
+    conn
+    |> clear_session()
+    |> redirect(to: "/")
+  end
 end
