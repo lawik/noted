@@ -1,17 +1,32 @@
-<button phx-click="close">Close</button>
 
 <%= form_for @changeset, "#", [
         phx_change: :validate,
-        phx_submit: :save
+        phx_submit: :save,
+        class: ""
     ], fn f -> %>
+    <div class="my-4 relative h-8">
+        <button phx-click="close"
+                class="absolute top-0 left-0 p-2 px-4 bg-gray-100 text-gray-700 rounded-full"
+                title="Back to notes"
+                ><svg class="w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+</svg></button>
+        <%= submit("Save", class: "absolute top-0 right-0 p-2 px-4 bg-gray-100 text-gray-700 rounded-full") %>
+    </div>
+
     <%= text_input(f, :title,
-        class: "block w-full p-4 focus:outline-none border-purple-600 border-2 bg-color-white text-black rounded-lg my-2"
+        class: "block w-full p-6 text-xl text-center text-gray-800 bg-white md:rounded-t-md focus:outline-none"
         ) %>
         <%= error_tag f, :title %>
-    <%= textarea(f, :body,
-        class: "block w-full p-4 focus:outline-none border-purple-600 border-2 bg-color-white text-black rounded-lg my-2"
-        ) %>
+    <div
+        class="block flex-grow w-full p-6 overflow-auto bg-white text-gray-800 focus:outline-none"
+        contenteditable="true"
+        phx-update="ignore"
+        data-name="note[body]"
+        ><%= @note.body %></div>
+        <%= textarea(f, :body, style: "display: none;") %>
         <%= error_tag f, :body %>
+
     <div>
     <section>
     <%= for image <- Enum.filter(@note.files, & String.starts_with?(&1.mimetype, "image/")) do %>
@@ -35,5 +50,9 @@
     <% end %>
     </section>
     </div>
-    <%= submit("Save") %>
+    <div class="bg-gray-100 rounded-b-md"
+    <div>
+        <button phx-click="close">Notes</button>
+        <%= submit("Save") %>
+    </div>
 <% end %>

@@ -51,6 +51,7 @@ defmodule Noted.Telegram.Bot do
     case Auth.confirm_authentication(key, user) do
       {:ok, user_account} ->
         simple_reply(update, "Welcome", state)
+        get_photo_if_missing(state, update, user_account)
 
       {:error, error} ->
         simple_reply(update, "An error occurred: #{inspect(error)}", state)
@@ -61,7 +62,7 @@ defmodule Noted.Telegram.Bot do
   def handle_update(
         %{
           "message" => %{
-            "message_id" => message_id,
+            "message_id" => _message_id,
             "text" => text
           }
         } = update,
@@ -170,28 +171,37 @@ defmodule Noted.Telegram.Bot do
   defp get_photo_if_missing(
          %{bot_key: key} = state,
          %{"message" => %{"from" => %{"id" => user_id}}},
-         %{photo_path: nil} = user
+         %{photo_path: path} = user
        ) do
-    # Om inte, kolla om användaren har ett foto på Telegram
-    case Telegram.Api.request(key, "getUserProfilePhotos", user_id: user_id) do
-      {:ok, %{"photos" => [photos | _]}} ->
-        case get_largest(photos) do
-          %{"file_id" => file_id} ->
-            path = download_file!(state, file_id)
-            Accounts.update_user(user, %{photo_path: path})
+    path =
+      case path do
+        nil ->
+          nil
 
-          _ ->
-            nil
-        end
+        path ->
+          case File.stat(path) do
+            {:ok, _} -> path
+            {:error, _} -> nil
+          end
+      end
 
-      _ ->
-        nil
+    if is_nil(path) do
+      case Telegram.Api.request(key, "getUserProfilePhotos", user_id: user_id) do
+        {:ok, %{"photos" => [photos | _]}} ->
+          case get_largest(photos) do
+            %{"file_id" => file_id} ->
+              path = download_file!(state, file_id)
+              Accounts.update_user(user, %{photo_path: path})
+
+            _ ->
+              nil
+          end
+
+        _ ->
+          nil
+      end
     end
-
-    # Om det stämmer,  hämta och spara fotot
   end
-
-  defp get_photo_if_missing(_, _, _), do: nil
 
   defp get_largest(files) do
     Enum.reduce(files, nil, fn file, largest ->

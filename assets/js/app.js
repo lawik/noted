@@ -21,6 +21,24 @@ import { LiveSocket } from "phoenix_live_view";
 let csrfToken = document
   .querySelector("meta[name='csrf-token']")
   .getAttribute("content");
+
+let hooks = {};
+hooks.contentEditable = {
+  mounted() {
+    let form = this.el.closest("form");
+    let targetInput = form.querySelector(`[name="${this.el.dataset.name}"]`);
+    this.el.addEventListener("input", () => {
+      targetInput.value = this.el.innerText;
+      targetInput.dispatchEvent(new Event("input", { bubbles: true }));
+    });
+  },
+};
+hooks.PushEvent = {
+  mounted() {
+    window.pushEventHook = this;
+  },
+};
+
 let liveSocket = new LiveSocket("/live", Socket, {
   params: { _csrf_token: csrfToken },
   dom: {
@@ -30,6 +48,7 @@ let liveSocket = new LiveSocket("/live", Socket, {
       }
     },
   },
+  hooks: hooks,
 });
 
 // Show progress bar on live navigation and form submits

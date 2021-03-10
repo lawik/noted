@@ -38,17 +38,23 @@ defmodule NotedWeb.PageLive do
   end
 
   @impl true
-  def handle_event("delete_note", %{"note" => note_id}, socket) do
-    socket =
-      case Notes.delete_note(String.to_integer(note_id)) do
-        {:ok, _} ->
-          socket
-          |> refresh_notes()
-          |> put_flash(:info, "Note deleted")
+  def handle_event("delete", %{"checked_ids" => note_ids}, socket) do
+    success_count =
+      Enum.filter(note_ids, fn note_id ->
+        case Notes.delete_note(note_id) do
+          {:ok, _} -> true
+          {:error, _} -> false
+        end
+      end)
+      |> Enum.count()
 
-        {:error, _reason} ->
-          put_flash(socket, :error, "Delete failed.")
+    socket =
+      if success_count > 0 do
+        put_flash(socket, :info, "Deleted #{success_count} notes")
+      else
+        put_flash(socket, :error, "No notes deleted")
       end
+      |> refresh_notes()
 
     {:noreply, socket}
   end
