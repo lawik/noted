@@ -52,8 +52,9 @@ defmodule Noted.MixProject do
       # Gun mismatch with telegram and cowboy
       {:cowlib, "~> 2.7", override: true},
       {:timex, "~> 3.6"},
-      {:credo, "~> 1.5", only: [:dev, :test], runtime: false}
-
+      {:credo, "~> 1.5", only: [:dev, :test], runtime: false},
+      {:ecto, "~> 3.5.8"},
+      {:exqlite, "~> 0.4"}
     ]
   end
 

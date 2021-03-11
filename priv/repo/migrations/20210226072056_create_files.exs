@@ -3,7 +3,7 @@ defmodule Noted.Repo.Migrations.CreateFiles do
 
   def change do
     create table(:files) do
-      add :path, :string
+      add :path, :text
       add :size, :integer
       add :mimetype, :string
       add :note_id, references(:notes, on_delete: :delete_all)

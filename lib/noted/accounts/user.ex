@@ -3,7 +3,7 @@ defmodule Noted.Accounts.User do
   import Ecto.Changeset
 
   schema "users" do
-    field(:telegram_data, :map)
+    field(:telegram_data, :string)
     field(:telegram_id, :integer)
     field(:photo_path, :string)
 

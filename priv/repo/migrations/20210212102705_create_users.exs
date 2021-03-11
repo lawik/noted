@@ -4,7 +4,8 @@ defmodule Noted.Repo.Migrations.CreateUsers do
   def change do
     create table(:users) do
       add :telegram_id, :integer
-      add :telegram_data, :map
+      add :telegram_data, :text
+      add :photo_path, :text, null: true
 
       timestamps()
     end

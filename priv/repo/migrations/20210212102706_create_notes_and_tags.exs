@@ -13,7 +13,7 @@ defmodule Noted.Repo.Migrations.CreateNotesAndTags do
 
     create table(:notes) do
       add :title, :string
-      add :body, :string
+      add :body, :text
 
       timestamps()
       add :user_id, references(:users)
