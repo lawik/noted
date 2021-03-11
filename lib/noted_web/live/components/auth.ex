@@ -15,7 +15,7 @@ defmodule NotedWeb.Live.Components.Auth do
         </div>
         <% end %>
         <div class="hover:text-white">
-        <%= @auth.user.telegram_data["first_name"] || @auth.user.telegram_data["username"] %> <%= @auth.user.telegram_data["last_name"] || "" %>
+        <%= @auth.profile["first_name"] || @auth.profile["username"] %> <%= @auth.profile["last_name"] || "" %>
         </div>
         <div x-show="showMore"><a href="<%= Routes.session_path(@socket, :logout) %>">Log out</a></div>
       </div>

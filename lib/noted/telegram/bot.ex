@@ -5,7 +5,7 @@ defmodule Noted.Telegram.Bot do
   alias Noted.Telegram.Auth
   alias Noted.Accounts
 
-  @default_file_path "/tmp/telegram_bot_files"
+  @default_file_path "files"
 
   def start_link(opts) do
     GenServer.start_link(__MODULE__, opts, opts)

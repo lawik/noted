@@ -15,9 +15,17 @@ defmodule NotedWeb.Live do
         Auth.generate_auth_link(bot_name)
       end
 
+    profile =
+      if user do
+        Jason.decode!(user.telegram_data)
+      else
+        nil
+      end
+
     LiveView.assign(socket,
       auth: %{
         user: user,
+        profile: profile,
         link: link,
         command: command,
         bot_name: bot_name
