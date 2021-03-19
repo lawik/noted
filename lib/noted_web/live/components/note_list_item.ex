@@ -34,10 +34,13 @@ defmodule NotedWeb.Live.Components.NoteListItem do
 
       <label class="absolute block top-4 left-4 w-6 h-6" title="Check for bulk actions">
         <input type="checkbox"
+          id="bulk-note-<%= @note.id %>"
           @change="
           let id = <%= @note.id %>;
           if (checked_ids.includes(id)) {
-            checked_ids = checked_ids.filter(jd => { jd != id });
+            checked_ids = checked_ids.filter(jd => {
+              return jd != id;
+            });
           } else {
             checked_ids.push(id)
           }
@@ -50,7 +53,7 @@ defmodule NotedWeb.Live.Components.NoteListItem do
                 checked:bg-gray-800 checked:border-0
                 focus:outline-none"
           />
-        <svg class="absolute top-1 left-1 text-white w-4" x-show="checked_ids.includes(<%= @note.id %>)" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <svg id="bulk-checkmark-<%= @note.id %>" class="absolute top-1 left-1 text-white w-4" x-show="checked_ids.includes(<%= @note.id %>)" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
         </svg>
       </label>
