@@ -1,10 +1,10 @@
 /* This file is for your main application css. */
 @import "../node_modules/nprogress/nprogress.css";
-@import "tailwindcss/base";
+@import "tailwindcss/dist/base.css";
 
-@import "tailwindcss/components";
+@import "tailwindcss/dist/components.css";
 
-@import "tailwindcss/utilities";
+@import "tailwindcss/dist/utilities.css";
 
 /* The Basics */
 
