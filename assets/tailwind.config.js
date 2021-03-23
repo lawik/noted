@@ -9,12 +9,5 @@ module.exports = {
   theme: {
     extend: {},
   },
-  variants: {
-    extend: {
-      backgroundColor: ["checked", "hover"],
-      borderColor: ["checked"],
-      borderWidth: ["checked", "last"],
-    },
-  },
   plugins: [],
 };
