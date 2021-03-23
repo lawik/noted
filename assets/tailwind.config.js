@@ -11,7 +11,7 @@ module.exports = {
   },
   variants: {
     extend: {
-      backgroundColor: ["checked"],
+      backgroundColor: ["checked", "hover"],
       borderColor: ["checked"],
       borderWidth: ["checked", "last"],
     },

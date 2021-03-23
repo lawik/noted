@@ -8,9 +8,11 @@
         <button phx-click="close"
                 class="absolute top-0 left-0 p-2 px-4 bg-gray-100 text-gray-700 rounded-full"
                 title="Back to notes"
-                ><svg class="w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-</svg></button>
+                >
+            <svg class="w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+            </svg>
+        </button>
         <%= submit("Save", class: "absolute top-0 right-0 p-2 px-4 bg-gray-100 text-gray-700 rounded-full") %>
     </div>
 
@@ -19,40 +21,52 @@
         ) %>
         <%= error_tag f, :title %>
     <div
-        class="block flex-grow w-full p-6 overflow-auto bg-white text-gray-800 focus:outline-none"
+        class="block flex-grow w-full p-6 overflow-auto bg-white text-gray-800 focus:outline-none hover:bg-gray-100"
         contenteditable="true"
         phx-update="ignore"
         data-name="note[body]"
         ><%= @note.body %></div>
-        <%= textarea(f, :body, style: "display: none;") %>
-        <%= error_tag f, :body %>
 
-    <div>
-    <section>
-    <%= for image <- Enum.filter(@note.files, & String.starts_with?(&1.mimetype, "image/")) do %>
-        <div>
-            <img src="<%= Routes.file_path(@socket, :serve, image.id) %>" />
+    <%= textarea(f, :body, style: "display: none;") %>
+    <%= error_tag f, :body %>
+
+    <div class="py-1 bg-white rounded-b-md">
+        <section>
+        <%= for image <- Enum.filter(@note.files, & String.starts_with?(&1.mimetype, "image/")) do %>
+            <div>
+                <img src="<%= Routes.file_path(@socket, :serve, image.id) %>" />
+            </div>
+        <% end %>
+            <div>
+                <%= live_file_input @uploads.images %>
+            </div>
+        </section>
+        <section>
+        <ul>
+        <%= for file <- Enum.reject(@note.files, & String.starts_with?(&1.mimetype, "image/")) do %>
+            <li>
+                <a href="<%= Routes.file_path(@socket, :serve, file.id) %>">file <%= file.id %></a>
+            </li>
+        <% end %>
+        </ul>
+        </section>
+        <section>
+        <%= for tag <- @note.tags do %>
+        <span>#<%= tag.name %></span>
+        <% end %>
+        </section>
         </div>
-    <% end %>
-    </section>
-    <section>
-    <ul>
-    <%= for file <- Enum.reject(@note.files, & String.starts_with?(&1.mimetype, "image/")) do %>
-        <li>
-            <a href="<%= Routes.file_path(@socket, :serve, file.id) %>">file <%= file.id %></a>
-        </li>
-    <% end %>
-    </ul>
-    </section>
-    <section>
-    <%= for tag <- @note.tags do %>
-    <span>#<%= tag.name %></span>
-    <% end %>
-    </section>
     </div>
-    <div class="bg-gray-100 rounded-b-md"
-    <div>
-        <button phx-click="close">Notes</button>
-        <%= submit("Save") %>
+
+    <div class="my-4 relative h-8">
+        <button phx-click="close"
+                class="absolute top-0 left-0 p-2 px-4 bg-gray-100 text-gray-700 rounded-full"
+                title="Back to notes"
+                >
+            <svg class="w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+            </svg>
+        </button>
+        <%= submit("Save", class: "absolute top-0 right-0 p-2 px-4 bg-gray-100 text-gray-700 rounded-full") %>
     </div>
 <% end %>

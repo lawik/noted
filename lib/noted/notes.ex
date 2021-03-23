@@ -11,6 +11,7 @@ defmodule Noted.Notes do
   alias Noted.Notes.Tag
 
   @tag_pattern ~r/#([a-z]+)/
+  @default_file_path "/tmp/noted_files_uploads"
 
   def format_body(nil) do
     {:safe, ""}
@@ -344,6 +345,12 @@ defmodule Noted.Notes do
   end
 
   alias Noted.Notes.File, as: FFile
+
+  def file_storage_path(path) do
+    basepath = Noted.Env.expect("FILE_STORAGE_DIR", @default_file_path)
+    File.mkdir_p!(basepath)
+    Path.join(basepath, path)
+  end
 
   @doc """
   Returns the list of files.
