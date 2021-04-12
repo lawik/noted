@@ -22,8 +22,10 @@
         <%= error_tag f, :title %>
     <div
         class="block flex-grow w-full p-6 overflow-auto bg-white text-gray-800 focus:outline-none hover:bg-gray-100"
+        id="body-editable"
         contenteditable="true"
         phx-update="ignore"
+        phx-hook="ContentEditable"
         data-name="note[body]"
         ><%= @note.body %></div>
 
@@ -31,21 +33,29 @@
     <%= error_tag f, :body %>
 
     <div class="py-1 bg-white rounded-b-md">
-        <section>
-        <%= for image <- Enum.filter(@note.files, & String.starts_with?(&1.mimetype, "image/")) do %>
-            <div>
-                <img src="<%= Routes.file_path(@socket, :serve, image.id) %>" />
+        <section class="my-3">
+            <div class="">
+            <%= for image <- Enum.filter(@note.files, & String.starts_with?(&1.mimetype, "image/")) do %>
+                <img src="<%= Routes.file_path(@socket, :serve, image.id) %>" class="w-full" />
+            <% end %>
             </div>
-        <% end %>
-            <div>
+            <div class="p-6">
                 <%= live_file_input @uploads.images %>
             </div>
         </section>
-        <section>
-        <ul>
+        <section class="p-6">
+        <h3 class="flex my-3 text-lg">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
+            </svg>
+            <span class="ml-2">
+            Files
+            </span>
+        </h3>
+        <ul class="block px-3">
         <%= for file <- Enum.reject(@note.files, & String.starts_with?(&1.mimetype, "image/")) do %>
-            <li>
-                <a href="<%= Routes.file_path(@socket, :serve, file.id) %>">file <%= file.id %></a>
+            <li class="">
+                <a href="<%= Routes.file_path(@socket, :serve, file.id) %>" class="underline color-blue-600">file <%= file.id %></a>
             </li>
         <% end %>
         </ul>
@@ -55,7 +65,6 @@
         <span>#<%= tag.name %></span>
         <% end %>
         </section>
-        </div>
     </div>
 
     <div class="my-4 relative h-8">

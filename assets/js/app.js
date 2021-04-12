@@ -23,12 +23,12 @@ let csrfToken = document
   .getAttribute("content");
 
 let hooks = {};
-hooks.contentEditable = {
+hooks.ContentEditable = {
   mounted() {
     let form = this.el.closest("form");
     let targetInput = form.querySelector(`[name="${this.el.dataset.name}"]`);
     this.el.addEventListener("input", () => {
-      targetInput.value = this.el.innerText;
+      targetInput.innerText = this.el.innerText;
       targetInput.dispatchEvent(new Event("input", { bubbles: true }));
     });
   },

@@ -10,7 +10,7 @@
 <form action="#" phx-submit="save" class="p-3 bg-gray-400">
     <label class="block text-gray-700 text-center my-3">Create note</label>
     <%= textarea(:create, :body,
-        class: "block bg-white w-full p-3 rounded-md",
+        class: "block bg-white w-full p-3 rounded-md focus:outline-none",
         placeholder: "New note goes here"
         ) %>
     <%= submit("Save",

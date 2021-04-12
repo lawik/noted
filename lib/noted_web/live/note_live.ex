@@ -34,6 +34,7 @@ defmodule NotedWeb.NoteLive do
 
   @impl true
   def handle_event("save", %{"note" => params}, socket) do
+    IO.inspect(params)
     consume_uploaded_entries(socket, :images, fn %{path: path}, %{client_type: mime, client_size: size} ->
       dest = Notes.file_storage_path(Path.basename(path))
       File.cp!(path, dest)
