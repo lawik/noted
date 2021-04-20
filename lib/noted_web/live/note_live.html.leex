@@ -74,7 +74,7 @@
         <%= for tag <- @note.tags do %>
             <span>
                 #<%= tag.name %>
-                <button class="w-2" phx-click="remove_tag" phx-value-tag_id="<%= tag.id %>">
+                <button class="w-2" phx-click="remove_tag" phx-value-tag_name="<%= tag.name %>">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                     </svg>

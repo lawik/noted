@@ -345,18 +345,18 @@ defmodule Noted.Notes do
     Tag.changeset(tag, attrs)
   end
 
-
-
   def add_tag(user_id, note_id, tag_name) do
     tag = Repo.get_by(Tag, name: tag_name, user_id: user_id)
 
-    result = case tag do
-      nil ->
-        %Tag{}
-        |> Tag.changeset(%{name: tag_name, user_id: user_id})
-        |> Repo.insert()
-      tag ->
-        {:ok, tag}
+    result =
+      case tag do
+        nil ->
+          %Tag{}
+          |> Tag.changeset(%{name: tag_name, user_id: user_id})
+          |> Repo.insert()
+
+        tag ->
+          {:ok, tag}
       end
 
     case result do
@@ -364,26 +364,31 @@ defmodule Noted.Notes do
         %NotesTags{}
         |> NotesTags.changeset(%{note_id: note_id, tag_id: tag.id})
         |> Repo.insert()
-      error -> error
+
+      error ->
+        error
     end
   end
 
   def remove_tag(user_id, note_id, tag_name) do
-
     tag = Repo.get_by(Tag, name: tag_name, user_id: user_id)
 
     case tag do
-      nil -> :ok
-      tag ->
-        query = from(n in NotesTags, where: n.note_id == ^note_id
-          and n.tag_id == ^tag.id)
+      nil ->
+        :ok
 
-        Repo.delete(query)
+      tag ->
+        query =
+          from(n in NotesTags,
+            where:
+              n.note_id == ^note_id and
+                n.tag_id == ^tag.id
+          )
+
+        Repo.delete_all(query)
         :ok
     end
-
   end
-
 
   alias Noted.Notes.File, as: FFile
 
