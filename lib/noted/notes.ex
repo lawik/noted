@@ -9,6 +9,7 @@ defmodule Noted.Notes do
 
   alias Noted.Notes.Note
   alias Noted.Notes.Tag
+  alias Noted.Notes.NotesTags
 
   @tag_pattern ~r/#([a-z]+)/
   @default_file_path "/tmp/noted_files_uploads"
@@ -343,6 +344,46 @@ defmodule Noted.Notes do
   def change_tag(%Tag{} = tag, attrs \\ %{}) do
     Tag.changeset(tag, attrs)
   end
+
+
+
+  def add_tag(user_id, note_id, tag_name) do
+    tag = Repo.get_by(Tag, name: tag_name, user_id: user_id)
+
+    result = case tag do
+      nil ->
+        %Tag{}
+        |> Tag.changeset(%{name: tag_name, user_id: user_id})
+        |> Repo.insert()
+      tag ->
+        {:ok, tag}
+      end
+
+    case result do
+      {:ok, tag} ->
+        %NotesTags{}
+        |> NotesTags.changeset(%{note_id: note_id, tag_id: tag.id})
+        |> Repo.insert()
+      error -> error
+    end
+  end
+
+  def remove_tag(user_id, note_id, tag_name) do
+
+    tag = Repo.get_by(Tag, name: tag_name, user_id: user_id)
+
+    case tag do
+      nil -> :ok
+      tag ->
+        query = from(n in NotesTags, where: n.note_id == ^note_id
+          and n.tag_id == ^tag.id)
+
+        Repo.delete(query)
+        :ok
+    end
+
+  end
+
 
   alias Noted.Notes.File, as: FFile
 

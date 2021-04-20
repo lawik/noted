@@ -19,8 +19,9 @@ defmodule Noted.Notes.Note do
   def changeset(note, attrs) do
     note
     |> cast(attrs, [:user_id, :title, :body])
+
     |> validate_required([:title])
-    |> validate_length(:title, min: 1)
+    |> validate_length(:title, min: 1, max: 200)
   end
 
   def add_tags(note, tags) do

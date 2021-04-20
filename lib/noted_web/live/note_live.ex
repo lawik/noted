@@ -27,14 +27,28 @@ defmodule NotedWeb.NoteLive do
   end
 
   @impl true
+  def handle_event("add_tag", %{"tag" => %{"tag_name" => tag_name}}, socket) do
+    user_id = socket.assigns.auth.user.id
+    note_id = socket.assigns.note.id
+
+    Notes.add_tag(user_id, note_id, tag_name)
+    note = Notes.get_note!(note_id)
+    {:noreply, assign(socket, note: note)}
+  end
+
+  @impl true
   def handle_event("validate", %{"note" => params}, socket) do
     changeset = Notes.validate_insert_note(socket.assigns.note, params)
     {:noreply, assign(socket, changeset: changeset)}
   end
 
   @impl true
-  def handle_event("save", %{"note" => params}, socket) do
-    IO.inspect(params)
+  def handle_event("validate_upload", _, socket) do
+    {:noreply, socket}
+  end
+
+  @impl true
+  def handle_event("upload_images", _params, socket) do
     consume_uploaded_entries(socket, :images, fn %{path: path}, %{client_type: mime, client_size: size} ->
       dest = Notes.file_storage_path(Path.basename(path))
       File.cp!(path, dest)
@@ -45,6 +59,12 @@ defmodule NotedWeb.NoteLive do
         note_id: socket.assigns.note.id
       })
     end)
+    note = Notes.get_note!(socket.assigns.note.id)
+    {:noreply, assign(socket, note: note)}
+  end
+
+  @impl true
+  def handle_event("upload_files", _params, socket) do
     consume_uploaded_entries(socket, :files, fn %{path: path}, %{client_type: mime, client_size: size} ->
       dest = Notes.file_storage_path(Path.basename(path))
       File.cp!(path, dest)
@@ -55,6 +75,12 @@ defmodule NotedWeb.NoteLive do
         note_id: socket.assigns.note.id
       })
     end)
+    note = Notes.get_note!(socket.assigns.note.id)
+    {:noreply, assign(socket, note: note)}
+  end
+
+  @impl true
+  def handle_event("save", %{"note" => params}, socket) do
     case Notes.update_note(socket.assigns.note, params) do
       {:error, changeset} ->
         {:noreply, assign(socket, changeset: changeset)}
