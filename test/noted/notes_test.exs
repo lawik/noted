@@ -19,9 +19,10 @@ defmodule Noted.NotesTest do
       note
     end
 
-    test "list_notes/0 returns all notes" do
+    test "list_notes/1 returns all notes" do
       note = note_fixture()
-      assert Notes.list_notes() == [note]
+      user_id = System.unique_integer([:positive])
+      assert Notes.list_notes(user_id) == [note]
     end
 
     test "get_note!/1 returns the note with given id" do
@@ -66,6 +67,9 @@ defmodule Noted.NotesTest do
 
   describe "tags" do
     alias Noted.Notes.Tag
+    alias Noted.Accounts
+    alias Noted.Notes.Note
+    alias Noted.Notes.NotesTags
 
     @valid_attrs %{name: "some name"}
     @update_attrs %{name: "some updated name"}
@@ -75,9 +79,54 @@ defmodule Noted.NotesTest do
       {:ok, tag} =
         attrs
         |> Enum.into(@valid_attrs)
-        |> Notes.create_tag()
+        |> Notes.create_tag!()
 
       tag
+    end
+
+    def get_notes_tags(note, tag) do
+      Repo.one!(from n in NotesTags, where: n.note_id == ^note.id and n.tag_id == ^tag.id)
+    end
+
+    test "add_tag/3 add the tag to a note" do
+      telegram_id = System.unique_integer([:positive])
+      {:ok, user} = Accounts.create_user(%{telegram_id: telegram_id, telegram_data: %{}})
+
+      {:ok, note} = Notes.create_note(user.id, "test title", "test body", [])
+
+      tag_name = "test#{System.unique_integer([:positive])}"
+      {:ok, notes_tags} = Notes.add_tag(user.id, note.id, tag_name)
+
+      tag = Repo.get(Tag, notes_tags.tag_id)
+
+      assert notes_tags.tag_id == tag.id
+    end
+
+    test "add_tag/3 is idempotent" do
+      telegram_id = System.unique_integer([:positive])
+      {:ok, user} = Accounts.create_user(%{telegram_id: telegram_id, telegram_data: %{}})
+      {:ok, note} = Notes.create_note(user.id, "test title", "test body", [])
+      tag_name = "test#{System.unique_integer([:positive])}"
+
+      Notes.add_tag(user.id, note.id, tag_name)
+
+      assert Notes.add_tag(user.id, note.id, tag_name) == nil
+    end
+
+    test "remove_tag/3 delete the tag from a note" do
+      telegram_id = System.unique_integer([:positive])
+      {:ok, user} = Accounts.create_user(%{telegram_id: telegram_id, telegram_data: %{}})
+      {:ok, note} = Notes.create_note(user.id, "test title", "test body", [])
+
+      tag_name = "test#{System.unique_integer([:positive])}"
+
+      tag = Repo.get_by(Tag, name: tag_name, user_id: user.id)
+
+      Notes.add_tag(user.id, note.id, tag_name)
+
+
+      assert :ok = Notes.remove_tag(user.id, note.id, tag_name)
+      assert_raise Ecto.NoResultsError, fn -> get_notes_tags(note, tag) end
     end
 
     test "list_tags/0 returns all tags" do

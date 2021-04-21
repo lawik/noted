@@ -346,27 +346,29 @@ defmodule Noted.Notes do
   end
 
   def add_tag(user_id, note_id, tag_name) do
-    tag = Repo.get_by(Tag, name: tag_name, user_id: user_id)
 
+    tag = Repo.get_by(Tag, name: tag_name, user_id: user_id)
+    if tag == nil do
     result =
-      case tag do
-        nil ->
-          %Tag{}
-          |> Tag.changeset(%{name: tag_name, user_id: user_id})
+        case tag do
+          nil ->
+            %Tag{}
+            |> Tag.changeset(%{name: tag_name, user_id: user_id})
+            |> Repo.insert()
+
+          tag ->
+            {:ok, tag}
+        end
+
+      case result do
+        {:ok, tag} ->
+          %NotesTags{}
+          |> NotesTags.changeset(%{note_id: note_id, tag_id: tag.id})
           |> Repo.insert()
 
-        tag ->
-          {:ok, tag}
+        error ->
+          error
       end
-
-    case result do
-      {:ok, tag} ->
-        %NotesTags{}
-        |> NotesTags.changeset(%{note_id: note_id, tag_id: tag.id})
-        |> Repo.insert()
-
-      error ->
-        error
     end
   end
 
