@@ -83,6 +83,7 @@ defmodule Noted.Notes do
       from n in Note,
         where: [user_id: ^user_id],
         preload: [:tags, :files]
+
     Repo.all(query)
   end
 
@@ -107,7 +108,6 @@ defmodule Noted.Notes do
     |> Repo.preload(:files)
   end
 
-
   @doc """
   Creates a note.
 
@@ -121,17 +121,9 @@ defmodule Noted.Notes do
 
   """
   def create_note(attrs \\ %{}) do
-    result = %Note{}
+    %Note{}
     |> Note.changeset(attrs)
     |> Repo.insert()
-
-    with {:ok, note} <- result do
-      note = note
-      |> Repo.preload(:tags)
-      |> Repo.preload(:files)
-
-      {:ok, note}
-    end
   end
 
   def create_note(user_id, title, body, tags) do
@@ -248,7 +240,7 @@ defmodule Noted.Notes do
             end)
           end)
           |> Enum.map(fn name ->
-            create_tag(%{name: name, user_id: user_id})
+            create_tag!(%{name: name, user_id: user_id})
           end)
 
         existing_tags ++ created_tags
@@ -286,12 +278,6 @@ defmodule Noted.Notes do
   """
   def get_tag!(id), do: Repo.get!(Tag, id)
 
-
-
-  def get_tag_by(tag_name, user_id) do
-    tag = Repo.get_by(Tag, name: tag_name, user_id: user_id)
-    {:ok, tag}
-  end
   @doc """
   Creates a tag.
 
@@ -304,12 +290,12 @@ defmodule Noted.Notes do
       {:error, %Ecto.Changeset{}}
 
   """
-  def create_tag(attrs \\ %{}) do
+  def create_tag!(attrs \\ %{}) do
     attrs = %{attrs | name: String.downcase(attrs.name)}
 
     %Tag{}
     |> Tag.changeset(attrs)
-    |> Repo.insert()
+    |> Repo.insert!()
   end
 
   @doc """
@@ -361,10 +347,8 @@ defmodule Noted.Notes do
 
   def add_tag(user_id, note_id, tag_name) do
 
-    {:ok, tag} = get_tag_by(tag_name, user_id)
-
-    if (is_nil(tag) or has_notes_tags?(note_id, tag.id)) do
-    {:ok, tags} = Repo.transaction(fn ->
+    tag = Repo.get_by(Tag, name: tag_name, user_id: user_id)
+    if tag == nil do
     result =
         case tag do
           nil ->
@@ -385,15 +369,7 @@ defmodule Noted.Notes do
         error ->
           error
       end
-    end)
-    tags
-  else
-    :ok
-  end
-  end
-
-  defp has_notes_tags?(note_id, tag_id) do
-    Repo.all(from nt in NotesTags, where: nt.note_id == ^note_id and nt.tag_id == ^tag_id) == []
+    end
   end
 
   def remove_tag(user_id, note_id, tag_name) do
