@@ -127,7 +127,7 @@ defmodule Noted.NotesTest do
 
       {:ok, notes_tags} = Notes.add_tag(user.id, note.id, tag_name)
 
-      {:ok, tag} = Notes.get_tag_by(tag_name, user.id)
+      {:ok, tag} = Notes.get_tag_by_name(tag_name, user.id)
 
       assert notes_tags.tag_id == tag.id
     end

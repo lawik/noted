@@ -288,7 +288,7 @@ defmodule Noted.Notes do
 
 
 
-  def get_tag_by(tag_name, user_id) do
+  def get_tag_by_name(tag_name, user_id) do
     tag = Repo.get_by(Tag, name: tag_name, user_id: user_id)
     {:ok, tag}
   end
@@ -304,7 +304,7 @@ defmodule Noted.Notes do
       {:error, %Ecto.Changeset{}}
 
   """
-  def create_tag(attrs \\ %{}) do
+  def create_tag(attrs) do
     attrs = %{attrs | name: String.downcase(attrs.name)}
 
     %Tag{}
@@ -361,9 +361,9 @@ defmodule Noted.Notes do
 
   def add_tag(user_id, note_id, tag_name) do
 
-    {:ok, tag} = get_tag_by(tag_name, user_id)
+    {:ok, tag} = get_tag_by_name(tag_name, user_id)
 
-    if (is_nil(tag) or has_notes_tags?(note_id, tag.id)) do
+    if (is_nil(tag) or empty_notes_tags?(note_id, tag.id)) do
     {:ok, tags} = Repo.transaction(fn ->
     result =
         case tag do
@@ -392,7 +392,7 @@ defmodule Noted.Notes do
   end
   end
 
-  defp has_notes_tags?(note_id, tag_id) do
+  defp empty_notes_tags?(note_id, tag_id) do
     Repo.all(from nt in NotesTags, where: nt.note_id == ^note_id and nt.tag_id == ^tag_id) == []
   end
 
