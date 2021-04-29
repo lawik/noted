@@ -14,11 +14,11 @@ defmodule Noted.Telegram.Bot do
   @impl GenServer
   def init(opts) do
     {key, _opts} = Keyword.pop!(opts, :bot_key)
-
+    telegram_module = Keyword.get(opts, :telegram_module, Noted.Telegram)
     # Authenticate the bot to allow replies and such
     # Match an OK response to make sure we're up and running
     # and store some identifiers
-    {:ok, %{"id" => id, "username" => bot_name} = me} = Telegram.Api.request(key, "getMe")
+    {:ok, %{"id" => id, "username" => bot_name} = me} = telegram_module.get_me(key)
     Auth.register_bot(bot_name)
     Phoenix.PubSub.subscribe(Noted.PubSub, "telegram_bot_update:#{id}")
 
@@ -26,7 +26,8 @@ defmodule Noted.Telegram.Bot do
       id: id,
       me: me,
       name: bot_name,
-      bot_key: key
+      bot_key: key,
+      telegram_module: telegram_module
     }
 
     {:ok, state}
@@ -148,10 +149,7 @@ defmodule Noted.Telegram.Bot do
   end
 
   defp simple_reply(%{"message" => %{"chat" => %{"id" => chat_id}}}, message, state) do
-    Telegram.Api.request(state.bot_key, "sendMessage",
-      chat_id: chat_id,
-      text: message
-    )
+    state.telegram_module.send_message(state.bot_key, chat_id: chat_id, text: message)
   end
 
   defp user_or_error(%{"message" => %{"from" => %{"id" => user_identifier}}}) do
@@ -186,7 +184,7 @@ defmodule Noted.Telegram.Bot do
       end
 
     if is_nil(path) do
-      case Telegram.Api.request(key, "getUserProfilePhotos", user_id: user_id) do
+      case state.telegram_module.get_user_profile_photos(key, user_id: user_id) do
         {:ok, %{"photos" => [photos | _]}} ->
           case get_largest(photos) do
             %{"file_id" => file_id} ->
@@ -215,11 +213,11 @@ defmodule Noted.Telegram.Bot do
 
   defp download_file!(state, file_id) do
     {:ok, %{"file_path" => file_path}} =
-      Telegram.Api.request(state.bot_key, "getFile", file_id: file_id)
+      state.telegram_module.get_file(state.bot_key, file_id: file_id)
 
     ext = Path.extname(file_path)
 
-    {:ok, file_data} = Telegram.Api.file(state.bot_key, file_path)
+    {:ok, file_data} = state.telegram_module.download_file(state.bot_key, file_path)
     dir = Noted.Env.expect("FILE_STORAGE_DIR", @default_file_path)
     File.mkdir_p!(dir)
     path = Path.join(dir, file_id <> ext)
