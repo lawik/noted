@@ -232,7 +232,7 @@ defmodule Noted.Notes do
   def ensure_tags(tag_names, user_id) do
     tag_names = Enum.map(tag_names, &String.downcase/1)
 
-    {:ok, tags} =
+    transaction =
       Repo.transaction(fn ->
         existing_tags =
           Tag
@@ -253,8 +253,13 @@ defmodule Noted.Notes do
 
         existing_tags ++ created_tags
       end)
+      case transaction do
+        {:ok, tags} ->
+          tags
+          {:error, _} ->
+            Repo.rollback(:rollback)
+      end
 
-    tags
   end
 
   @doc """
@@ -364,7 +369,7 @@ defmodule Noted.Notes do
     {:ok, tag} = get_tag_by_name(tag_name, user_id)
 
     if (is_nil(tag) or empty_notes_tags?(note_id, tag.id)) do
-    {:ok, tags} = Repo.transaction(fn ->
+    transaction = Repo.transaction(fn ->
     result =
         case tag do
           nil ->
@@ -382,11 +387,14 @@ defmodule Noted.Notes do
           |> NotesTags.changeset(%{note_id: note_id, tag_id: tag.id})
           |> Repo.insert()
 
-        error ->
-          error
       end
     end)
-    tags
+    case transaction do
+      {:ok, tags} ->
+        tags
+        {:error, _} ->
+          Repo.rollback(:rollback)
+    end
   else
     :ok
   end
