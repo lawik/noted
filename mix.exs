@@ -51,7 +51,9 @@ defmodule Noted.MixProject do
       {:telegram, git: "https://github.com/visciang/telegram.git", tag: "0.7.0"},
       # Gun mismatch with telegram and cowboy
       {:cowlib, "~> 2.7", override: true},
-      {:timex, "~> 3.6"}
+      {:timex, "~> 3.6"},
+      {:credo, "~> 1.5", only: [:dev, :test], runtime: false}
+
     ]
   end
 
