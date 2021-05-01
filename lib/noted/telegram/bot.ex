@@ -77,6 +77,7 @@ defmodule Noted.Telegram.Bot do
     end
   end
 
+  # file message
   def handle_update(
         %{
           "message" =>
@@ -106,6 +107,7 @@ defmodule Noted.Telegram.Bot do
     end
   end
 
+  # photo message
   def handle_update(
         %{
           "message" =>
