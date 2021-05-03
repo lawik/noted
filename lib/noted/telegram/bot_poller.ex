@@ -12,17 +12,19 @@ defmodule Noted.Telegram.BotPoller do
   @impl GenServer
   def init(opts) do
     {key, _opts} = Keyword.pop!(opts, :bot_key)
+    telegram_module = Keyword.get(opts, :telegram_module, Noted.Telegram)
 
     # Get connected and verify that we can make calls with
     # the Bot API
-    {:ok, %{"id" => id} = me} = Telegram.Api.request(key, "getMe")
+    {:ok, %{"id" => id} = me} = telegram_module.get_me(key)
 
     state = %{
       id: id,
       me: me,
       name: me["username"],
       bot_key: key,
-      last_seen: -2
+      last_seen: -2,
+      telegram_module: telegram_module
     }
 
     next_loop()
@@ -33,7 +35,7 @@ defmodule Noted.Telegram.BotPoller do
   def handle_info(:start, %{bot_key: key, last_seen: last_seen} = state) do
     # getUpdates
     state =
-      case Telegram.Api.request(key, "getUpdates", offset: last_seen + 1, timeout: 30) do
+      case state.telegram_module.get_updates(key, offset: last_seen + 1, timeout: 30) do
         {:ok, []} ->
           state
 
