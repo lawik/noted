@@ -121,9 +121,19 @@ defmodule Noted.Notes do
 
   """
   def create_note(attrs \\ %{}) do
-    %Note{}
-    |> Note.changeset(attrs)
-    |> Repo.insert()
+    result =
+      %Note{}
+      |> Note.changeset(attrs)
+      |> Repo.insert()
+
+    with {:ok, note} <- result do
+      note =
+        note
+        |> Repo.preload(:tags)
+        |> Repo.preload(:files)
+
+      {:ok, note}
+    end
   end
 
   def create_note(user_id, title, body, tags) do
@@ -224,7 +234,7 @@ defmodule Noted.Notes do
   def ensure_tags(tag_names, user_id) do
     tag_names = Enum.map(tag_names, &String.downcase/1)
 
-    {:ok, tags} =
+    transaction =
       Repo.transaction(fn ->
         existing_tags =
           Tag
@@ -240,13 +250,19 @@ defmodule Noted.Notes do
             end)
           end)
           |> Enum.map(fn name ->
-            create_tag!(%{name: name, user_id: user_id})
+            create_tag(%{name: name, user_id: user_id})
           end)
 
         existing_tags ++ created_tags
       end)
 
-    tags
+    case transaction do
+      {:ok, tags} ->
+        tags
+
+      {:error, _} ->
+        Repo.rollback(:rollback)
+    end
   end
 
   @doc """
@@ -278,6 +294,11 @@ defmodule Noted.Notes do
   """
   def get_tag!(id), do: Repo.get!(Tag, id)
 
+  def get_tag_by_name(tag_name, user_id) do
+    tag = Repo.get_by(Tag, name: tag_name, user_id: user_id)
+    {:ok, tag}
+  end
+
   @doc """
   Creates a tag.
 
@@ -290,12 +311,12 @@ defmodule Noted.Notes do
       {:error, %Ecto.Changeset{}}
 
   """
-  def create_tag!(attrs \\ %{}) do
+  def create_tag(attrs) do
     attrs = %{attrs | name: String.downcase(attrs.name)}
 
     %Tag{}
     |> Tag.changeset(attrs)
-    |> Repo.insert!()
+    |> Repo.insert()
   end
 
   @doc """
@@ -346,28 +367,44 @@ defmodule Noted.Notes do
   end
 
   def add_tag(user_id, note_id, tag_name) do
-    tag = Repo.get_by(Tag, name: tag_name, user_id: user_id)
+    {:ok, tag} = get_tag_by_name(tag_name, user_id)
 
-    result =
-      case tag do
-        nil ->
-          %Tag{}
-          |> Tag.changeset(%{name: tag_name, user_id: user_id})
-          |> Repo.insert()
+    if is_nil(tag) or empty_notes_tags?(note_id, tag.id) do
+      transaction =
+        Repo.transaction(fn ->
+          result =
+            case tag do
+              nil ->
+                %Tag{}
+                |> Tag.changeset(%{name: tag_name, user_id: user_id})
+                |> Repo.insert()
 
-        tag ->
-          {:ok, tag}
+              tag ->
+                {:ok, tag}
+            end
+
+          case result do
+            {:ok, tag} ->
+              %NotesTags{}
+              |> NotesTags.changeset(%{note_id: note_id, tag_id: tag.id})
+              |> Repo.insert()
+          end
+        end)
+
+      case transaction do
+        {:ok, tags} ->
+          tags
+
+        {:error, _} ->
+          Repo.rollback(:rollback)
       end
-
-    case result do
-      {:ok, tag} ->
-        %NotesTags{}
-        |> NotesTags.changeset(%{note_id: note_id, tag_id: tag.id})
-        |> Repo.insert()
-
-      error ->
-        error
+    else
+      :ok
     end
+  end
+
+  defp empty_notes_tags?(note_id, tag_id) do
+    Repo.all(from nt in NotesTags, where: nt.note_id == ^note_id and nt.tag_id == ^tag_id) == []
   end
 
   def remove_tag(user_id, note_id, tag_name) do
