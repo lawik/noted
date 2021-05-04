@@ -48,6 +48,17 @@ defmodule NotedWeb.NoteLive do
   end
 
   @impl true
+  def handle_event("remove_file_image", %{"file_image_id" => file_image_id}, socket) do
+    file_image = Notes.get_file!(file_image_id)
+    Notes.delete_file(file_image)
+
+    note_id = socket.assigns.note.id
+    note = Notes.get_note!(note_id)
+
+    {:noreply, assign(socket, note: note)}
+  end
+
+  @impl true
   def handle_event("validate", %{"note" => params}, socket) do
     changeset = Notes.validate_insert_note(socket.assigns.note, params)
     {:noreply, assign(socket, changeset: changeset)}

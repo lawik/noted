@@ -37,7 +37,19 @@
         <section class="p-6">
             <div class="">
             <%= for image <- filter_images(@note.files) do %>
-                <img src="<%= Routes.file_path(@socket, :serve, image.id) %>" class="w-full" />
+            <div action="#" x-data="{dailog: false}">
+                    <button type="button" @click="dailog=true">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                        <div x-show="dailog">
+                           <p>Are you sure want to delete the file?</p>
+                           <button @click="dailog=false"> Cancel </button>
+                           <button @click="dailog=false" phx-click="remove_file_image" phx-value-file_image_id="<%= image.id%>" type="button"> Confirm </button>
+                        </div>
+                       <img src="<%= Routes.file_path(@socket, :serve, image.id) %>" class="w-full" />
+            </div>
             <% end %>
             </div>
             <div class="">
@@ -58,16 +70,21 @@
             </h3>
             <ul class="block px-3">
             <%= for file <- filter_files(@note.files) do %>
+            <div action="#" x-data="{dailog: false}">
                 <li class="">
-                <a href="<%= Routes.file_path(@socket, :serve, file.id) %>" class="underline color-blue-600">file <%= file.id %>
-                    <button class="" phx-click="remove_tag" phx-value-tag_name="">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                </button>
-                </a>
-
+                    <button type="button" @click="dailog=true">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                        <div x-show="dailog">
+                           <p>Are you sure want to delete the file?</p>
+                           <button @click="dailog=false"> Cancel </button>
+                           <button @click="dailog=false" phx-click="remove_file_image" phx-value-file_image_id="<%= file.id%>" type="button"> Confirm </button>
+                        </div>
+                <a href="<%= Routes.file_path(@socket, :serve, file.id) %>" class="underline color-blue-600">file <%= file.id %></a>
                 </li>
+            </div>
             <% end %>
             </ul>
             <div class="">
