@@ -32,12 +32,11 @@
     <%= error_tag f, :body %>
 <% end %>
 
-
 <div class="py-1 bg-white rounded-b-md">
     <form phx-submit="upload_images" phx-change="validate_upload">
         <section class="p-6">
             <div class="">
-            <%= for image <- Enum.filter(@note.files, & String.starts_with?(&1.mimetype, "image/")) do %>
+            <%= for image <- filter_images(@note.files) do %>
                 <img src="<%= Routes.file_path(@socket, :serve, image.id) %>" class="w-full" />
             <% end %>
             </div>
@@ -58,9 +57,16 @@
                 </span>
             </h3>
             <ul class="block px-3">
-            <%= for file <- Enum.reject(@note.files, & String.starts_with?(&1.mimetype, "image/")) do %>
+            <%= for file <- filter_files(@note.files) do %>
                 <li class="">
-                    <a href="<%= Routes.file_path(@socket, :serve, file.id) %>" class="underline color-blue-600">file <%= file.id %></a>
+                <a href="<%= Routes.file_path(@socket, :serve, file.id) %>" class="underline color-blue-600">file <%= file.id %>
+                    <button class="" phx-click="remove_tag" phx-value-tag_name="">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+                </a>
+
                 </li>
             <% end %>
             </ul>

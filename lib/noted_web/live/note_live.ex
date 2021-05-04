@@ -115,4 +115,15 @@ defmodule NotedWeb.NoteLive do
   def handle_event("close", _, socket) do
     {:noreply, redirect(socket, to: "/")}
   end
+
+  defp filter_files(files) do
+    files
+    |> Enum.reject(&String.starts_with?(&1.mimetype, "image/"))
+  end
+
+  defp filter_images(images) do
+    images
+    |> Enum.filter(&String.starts_with?(&1.mimetype, "image/"))
+  end
+
 end
