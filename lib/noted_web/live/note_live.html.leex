@@ -35,13 +35,13 @@
 
 <div class="py-1 bg-white rounded-b-md">
     <form phx-submit="upload_images" phx-change="validate_upload">
-        <section class="my-3">
+        <section class="p-6">
             <div class="">
             <%= for image <- Enum.filter(@note.files, & String.starts_with?(&1.mimetype, "image/")) do %>
                 <img src="<%= Routes.file_path(@socket, :serve, image.id) %>" class="w-full" />
             <% end %>
             </div>
-            <div class="p-6">
+            <div class="">
                 <%= live_file_input @uploads.images %>
                 <%= submit("Upload") %>
             </div>
@@ -64,15 +64,15 @@
                 </li>
             <% end %>
             </ul>
-            <div class="p-6">
+            <div class="">
                 <%= live_file_input @uploads.files %>
                 <%= submit("Upload") %>
             </div>
         </section>
     </form>
-    <section class="flex">
+    <section class="flex my-8 mx-6">
         <%= for tag <- @note.tags do %>
-            <div class="flex py-1 px-3 ml-2 rounded-full bg-gray-600 text-gray-100">
+            <div class="flex py-1 px-3 mr-2 rounded-full bg-gray-600 text-gray-100">
                 <div class="mr-2">#<%= tag.name %></div>
                 <button class="focus:outline-none" phx-click="remove_tag" phx-value-tag_name="<%= tag.name %>">
                     <svg xmlns="http://www.w3.org/2000/svg" class="w-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
