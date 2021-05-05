@@ -45,8 +45,8 @@
                     </button>
                         <div x-show="dailog">
                            <p>Are you sure want to delete the file?</p>
-                           <button @click="dailog=false"> Cancel </button>
-                           <button @click="dailog=false" phx-click="remove_file_image" phx-value-file_image_id="<%= image.id%>" type="button"> Confirm </button>
+                           <button @click.away="dailog=false" > Cancel </button>
+                           <button @click.away="dailog=false"  phx-click="remove_file_image" phx-value-file_image_id="<%= image.id%>" type="button"> Confirm </button>
                         </div>
                        <img src="<%= Routes.file_path(@socket, :serve, image.id) %>" class="w-full" />
             </div>
@@ -79,8 +79,8 @@
                     </button>
                         <div x-show="dailog">
                            <p>Are you sure want to delete the file?</p>
-                           <button @click="dailog=false"> Cancel </button>
-                           <button @click="dailog=false" phx-click="remove_file_image" phx-value-file_image_id="<%= file.id%>" type="button"> Confirm </button>
+                           <button @click.away="dailog=false"> Cancel </button>
+                           <button @click.away="dailog=false" phx-click="remove_file_image" phx-value-file_image_id="<%= file.id%>" type="button"> Confirm </button>
                         </div>
                 <a href="<%= Routes.file_path(@socket, :serve, file.id) %>" class="underline color-blue-600">file <%= file.id %></a>
                 </li>
