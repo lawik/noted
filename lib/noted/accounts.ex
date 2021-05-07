@@ -18,7 +18,12 @@ defmodule Noted.Accounts do
 
   """
   def list_users do
-    Repo.all(User)
+    users = Repo.all(User)
+
+    Enum.reduce(users, [], fn user, acc ->
+      {:ok, user} = decode!({:ok, user})
+      acc ++ [user]
+    end)
   end
 
   @doc """
@@ -35,10 +40,44 @@ defmodule Noted.Accounts do
       ** (Ecto.NoResultsError)
 
   """
-  def get_user!(id), do: Repo.get!(User, id)
-  def get_user(id), do: Repo.get(User, id)
+  def get_user!(id) do
+    user = Repo.get!(User, id)
 
-  def get_user_by_telegram_id(telegram_id), do: Repo.get_by(User, telegram_id: telegram_id)
+    case user do
+      %User{} = user ->
+        {:ok, user} = decode!({:ok, user})
+        user
+
+      _ ->
+        user
+    end
+  end
+
+  def get_user(id) do
+    user = Repo.get(User, id)
+
+    case user do
+      %User{} = user ->
+        {:ok, user} = decode!({:ok, user})
+        user
+
+      _ ->
+        user
+    end
+  end
+
+  def get_user_by_telegram_id(telegram_id) do
+    user = Repo.get_by(User, telegram_id: telegram_id)
+
+    case user do
+      %User{} = user ->
+        {:ok, user} = decode!({:ok, user})
+        user
+
+      nil ->
+        nil
+    end
+  end
 
   @doc """
   Creates a user.
@@ -53,9 +92,14 @@ defmodule Noted.Accounts do
 
   """
   def create_user(attrs \\ %{}) do
-    %User{}
-    |> User.changeset(attrs)
-    |> Repo.insert()
+    attrs = encode!(attrs)
+
+    user =
+      %User{}
+      |> User.changeset(attrs)
+      |> Repo.insert()
+
+    decode!(user)
   end
 
   @doc """
@@ -71,9 +115,14 @@ defmodule Noted.Accounts do
 
   """
   def update_user(%User{} = user, attrs) do
-    user
-    |> User.changeset(attrs)
-    |> Repo.update()
+    attrs = encode!(attrs)
+
+    user =
+      user
+      |> User.changeset(attrs)
+      |> Repo.update()
+
+    decode!(user)
   end
 
   @doc """
@@ -102,6 +151,27 @@ defmodule Noted.Accounts do
 
   """
   def change_user(%User{} = user, attrs \\ %{}) do
+    attrs = encode!(attrs)
     User.changeset(user, attrs)
+  end
+
+  defp encode!(attrs) do
+    case attrs do
+      %{"telegram_data" => %{} = unencoded} ->
+        Map.put(attrs, "telegram_data", Jason.encode!(unencoded))
+
+      %{telegram_data: %{} = unencoded} ->
+        Map.put(attrs, :telegram_data, Jason.encode!(unencoded))
+
+      _ ->
+        attrs
+    end
+  end
+
+  defp decode!(user) do
+    case user do
+      {:ok, user} -> {:ok, %{user | telegram_data: Jason.decode!(user.telegram_data)}}
+      {:error, _} -> user
+    end
   end
 end
