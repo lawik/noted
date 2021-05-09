@@ -20,9 +20,9 @@ defmodule Noted.Accounts do
   def list_users do
     users = Repo.all(User)
 
-    Enum.reduce(users, [], fn user, acc ->
+    Enum.map(users, fn user ->
       {:ok, user} = decode!({:ok, user})
-      acc ++ [user]
+      user
     end)
   end
 
