@@ -14,11 +14,12 @@ defmodule NotedWeb.NoteLive do
         changeset = Notes.change_note(note)
 
         socket
+        |> assign(images: filter_images(note.files))
+        |> assign(files: filter_files(note.files))
         |> assign(changeset: changeset, note: note)
         |> allow_upload(:images, accept: ~w(.jpg .jpeg .png .gif), max_entries: 10)
         |> allow_upload(:files, accept: :any, max_entries: 10)
       end)
-
     {:ok, socket}
   end
 
@@ -45,6 +46,30 @@ defmodule NotedWeb.NoteLive do
     Notes.remove_tag(user_id, note_id, tag_name)
     note = Notes.get_note!(note_id)
     {:noreply, assign(socket, note: note)}
+  end
+
+  @impl true
+  def handle_event("remove_file", %{"file_id" => file_id}, socket) do
+    file = Notes.get_file!(file_id)
+    Notes.delete_file(file)
+
+    note = Notes.get_note!(socket.assigns.note.id)
+
+    files = filter_files(note.files)
+
+    {:noreply, assign(socket, files: files)}
+  end
+
+  @impl true
+  def handle_event("remove_image", %{"image_id" => image_id}, socket) do
+    image = Notes.get_file!(image_id)
+    Notes.delete_file(image)
+
+    note = Notes.get_note!(socket.assigns.note.id)
+
+    images = filter_images(note.files)
+
+    {:noreply, assign(socket, images: images)}
   end
 
   @impl true
@@ -75,7 +100,9 @@ defmodule NotedWeb.NoteLive do
     end)
 
     note = Notes.get_note!(socket.assigns.note.id)
-    {:noreply, assign(socket, note: note)}
+    images = filter_images(note.files)
+
+    {:noreply, assign(socket, note: note, images: images)}
   end
 
   @impl true
@@ -95,7 +122,9 @@ defmodule NotedWeb.NoteLive do
     end)
 
     note = Notes.get_note!(socket.assigns.note.id)
-    {:noreply, assign(socket, note: note)}
+    files = filter_files(note.files)
+
+    {:noreply, assign(socket, note: note, files: files)}
   end
 
   @impl true
@@ -115,4 +144,15 @@ defmodule NotedWeb.NoteLive do
   def handle_event("close", _, socket) do
     {:noreply, redirect(socket, to: "/")}
   end
+
+  defp filter_files(files) do
+    files
+    |> Enum.reject(&String.starts_with?(&1.mimetype, "image/"))
+  end
+
+  defp filter_images(images) do
+    images
+    |> Enum.filter(&String.starts_with?(&1.mimetype, "image/"))
+  end
+
 end

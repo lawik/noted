@@ -2,11 +2,9 @@ defmodule Noted.Telegram.BotTest do
   use ExUnit.Case
   use Noted.DataCase
 
-  import ExUnit.CaptureLog
   require Logger
 
   alias Noted.Accounts
-  alias Noted.Notes
 
   @user_attrs %{telegram_data: %{}, telegram_id: 42}
   @file_attrs %{mimetype: "mimetype", path: "/tmp/telegram_bot_files", size: 1}

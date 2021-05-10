@@ -5,7 +5,7 @@ defmodule NotedWeb.PageLiveTest do
 
   test "disconnected and connected render", %{conn: conn} do
     {:ok, page_live, disconnected_html} = live(conn, "/")
-    assert disconnected_html =~ "Welcome to Phoenix!"
-    assert render(page_live) =~ "Welcome to Phoenix!"
+    assert disconnected_html =~ "Authenticate via Telegram"
+    assert render(page_live) =~ "Authenticate via Telegram"
   end
 end
