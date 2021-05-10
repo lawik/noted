@@ -16,6 +16,7 @@ defmodule NotedWeb.PageLive do
 
         socket
         |> assign(edit_note: nil, search: "")
+        |> assign(checked_ids: [])
         |> refresh_notes()
       end)
 
@@ -39,6 +40,8 @@ defmodule NotedWeb.PageLive do
 
   @impl true
   def handle_event("delete", %{"checked_ids" => note_ids}, socket) do
+    note_ids = String.to_charlist(note_ids)
+
     success_count =
       Enum.filter(note_ids, fn note_id ->
         case Notes.delete_note(note_id) do
@@ -56,7 +59,7 @@ defmodule NotedWeb.PageLive do
       end
       |> refresh_notes()
 
-    {:noreply, socket}
+    {:noreply, assign(socket, checked_ids: [])}
   end
 
   @impl true
@@ -81,6 +84,25 @@ defmodule NotedWeb.PageLive do
 
     {:noreply, socket}
   end
+
+
+  @impl true
+  def handle_event("selection", params, socket) do
+    checked_ids = params
+    |> Enum.filter(fn {key, value} ->
+      String.starts_with?(key, "note-") and value == "selected"
+    end)
+    |> Enum.map(fn {"note-" <> id_string, value} ->
+      String.to_integer(id_string)
+    end)
+
+    {:noreply, assign(socket, checked_ids: checked_ids)}
+  end
+
+    @impl true
+    def handle_event("cancel", _params, socket) do
+      {:noreply, assign(socket, checked_ids: [])}
+    end
 
   defp filter_by_search(%{assigns: %{search: q, notes: notes}} = socket) do
     found_notes =
