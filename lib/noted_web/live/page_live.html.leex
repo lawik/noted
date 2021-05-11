@@ -19,43 +19,41 @@
 </form>
 <%= if not is_nil(@notes) do %>
 <div
-    action="#"
-    x-data="{checked_ids: [], confirmDelete: false}"
-    phx-hook="PushEvent"
     id="note-list-form"
     class="relative"
     >
-    <div
-        x-show="checked_ids.length > 0"
+
+    <%= if length(@checked_ids) > 0 do%>
+    <form
+        action="#"
+        x-data="{confirmDelete: false}"
         class="fixed -top-1 left-0 right-0 z-10 flex bg-gray-900 text-gray-100 p-3"
     >
         <div class="flex-grow p-1">
-            <span><span x-text="checked_ids.length"></span> selected</span>
+            <span> selected <%= length(@checked_ids) %> </span>
         </div>
-
-        <div class="">
             <button
                 x-show="!confirmDelete"
-                @click.prevent="confirmDelete = true;"
+                @click="confirmDelete = true;"
                 class="bg-gray-700 text-gray-200 p-1 px-2 rounded-md"
             >Delete</button>
             <button
                 x-show="confirmDelete"
-                @click.prevent="confirmDelete = false;"
+                @click="confirmDelete = false;"
+                phx-click="cancel"
                 class="mr-4"
             >Cancel</button>
             <button
                 x-show="confirmDelete"
-                @click.prevent="
-                        pushEventHook.pushEvent('delete', { 'checked_ids': checked_ids });
-                        confirmDelete = false;
-                        checked_ids=[];
-                "
+
+                phx-click="delete"
+                phx-value-checked_ids="<%=@checked_ids %>"
                 class="bg-gray-700 text-gray-200 p-1 px-2 rounded-md"
             >Confirm deletion</button>
         </div>
-    </div>
+    </form>
+    <% end %>
 
-    <%= live_component @socket, NotedWeb.Live.Components.NoteList, notes: @found_notes %>
+    <%= live_component @socket, NotedWeb.Live.Components.NoteList, notes: @found_notes, checked_ids: @checked_ids %>
 </div>
 <% end %>
