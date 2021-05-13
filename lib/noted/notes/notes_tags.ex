@@ -15,8 +15,5 @@ defmodule Noted.Notes.NotesTags do
     note
     |> cast(attrs, @required)
     |> validate_required(@required)
-    |> foreign_key_constraint(:note_id)
-    |> foreign_key_constraint(:tag_id)
-    |> unique_constraint([:note, :tag], name: :note_tag_unique, message: "ALREADY_EXISTS")
   end
 end

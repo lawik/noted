@@ -35,7 +35,7 @@ defmodule Noted.MixProject do
     [
       {:phoenix, "~> 1.5.7"},
       {:phoenix_ecto, "~> 4.1"},
-      {:ecto_sql, "~> 3.4"},
+      {:ecto_sql, "~> 3.6"},
       {:postgrex, ">= 0.0.0"},
       {:phoenix_live_view, "~> 0.15.0"},
       {:floki, ">= 0.27.0", only: :test},
@@ -52,8 +52,10 @@ defmodule Noted.MixProject do
       # Gun mismatch with telegram and cowboy
       {:cowlib, "~> 2.7", override: true},
       {:timex, "~> 3.6"},
-      {:credo, "~> 1.5", only: [:dev, :test], runtime: false}
-
+      {:credo, "~> 1.5", only: [:dev, :test], runtime: false},
+      {:ecto, "~> 3.6"},
+      {:exqlite, "~> 0.6"},
+      {:ecto_sqlite3, "~> 0.5.5"}
     ]
   end
 

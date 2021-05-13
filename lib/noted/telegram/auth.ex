@@ -60,7 +60,7 @@ defmodule Noted.Telegram.Auth do
             nil ->
               Noted.Accounts.create_user(%{
                 telegram_id: telegram_user_id,
-                telegram_data: user_information
+                telegram_data: Jason.encode!(user_information)
               })
 
             user ->

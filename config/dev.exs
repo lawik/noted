@@ -1,13 +1,21 @@
 use Mix.Config
 
 # Configure your database
+# config :noted, Noted.Repo,
+#   username: "postgres",
+#   password: "postgres",
+#   database: "noted_dev",
+#   hostname: "localhost",
+#   show_sensitive_data_on_connection_error: true,
+#   pool_size: 10
+
 config :noted, Noted.Repo,
-  username: "postgres",
-  password: "postgres",
-  database: "noted_dev",
-  hostname: "localhost",
-  show_sensitive_data_on_connection_error: true,
-  pool_size: 10
+  database: "database.db",
+  show_sensitive_data_on_connection_error: false,
+  journal_mode: :wal,
+  cache_size: -64000,
+  temp_store: :memory,
+  pool_size: 1
 
 # For development, we disable any cache and enable
 # debugging and code reloading.

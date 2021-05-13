@@ -17,6 +17,5 @@ defmodule Noted.Notes.File do
     file
     |> cast(attrs, [:path, :size, :mimetype, :note_id])
     |> validate_required([:path, :size, :mimetype, :note_id])
-    |> foreign_key_constraint(:note_id)
   end
 end
