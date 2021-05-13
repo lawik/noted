@@ -35,15 +35,23 @@
 <div class="py-1 bg-white rounded-b-md">
     <form phx-submit="upload_images" phx-change="validate_upload">
         <section class="p-6">
+            <h3 class="flex my-3 text-lg">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+                <span class="ml-2">
+                Images
+                </span>
+            </h3>
             <div class="">
             <%= for image <- @images do %>
-            <div action="#" x-data="{dialog: false}">
-                    <button type="button" @click="dialog=true">
+            <div action="#" x-data="{dialog: false}" class="relative">
+                    <button type="button" x-show="!dialog" @click="dialog=true" class="absolute top-4 right-4 p-2 bg-gray-100 rounded-full">
                         <svg xmlns="http://www.w3.org/2000/svg" class="w-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                         </svg>
                     </button>
-                        <div x-show="dialog">
+                        <div x-show="dialog" class="absolute top-4 right-4 p-2 bg-gray-100 rounded-md">
                            <p>Are you sure want to delete the file?</p>
                            <button @click.away="dialog=false" > Cancel </button>
                            <button @click.away="dialog=false"  phx-click="remove_image" phx-value-image_id="<%= image.id%>" type="button"> Confirm </button>
@@ -52,9 +60,17 @@
             </div>
             <% end %>
             </div>
-            <div class="">
-                <%= live_file_input @uploads.images %>
-                <%= submit("Upload") %>
+            <div class="block w-full rounded-md mt-6 py-3 px-3 bg-gray-700 text-gray-200 text-center">
+                <div class="my-6" phx-drop-target="<%= @uploads.images.ref %>">
+                    <label>
+                    Drag images here or click to upload
+                    <div class="hidden"><%= live_file_input @uploads.images %></div>
+                    </label>
+                    <%= for entry <- @uploads.images.entries do %>
+                    <%= live_img_preview entry %>
+                    <% end %>
+                </div>
+                <%= submit("Upload", class: "w-32 ml-auto mr-auto mb-6 px-4 py-2 rounded-full bg-gray-200 text-gray-600") %>
             </div>
         </section>
     </form>
