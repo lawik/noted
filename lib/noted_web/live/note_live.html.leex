@@ -51,10 +51,12 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                         </svg>
                     </button>
-                        <div x-show="dialog" class="absolute top-4 right-4 p-2 bg-gray-100 rounded-md">
+                        <div x-show="dialog" class="absolute top-4 right-4 p-4 bg-gray-100 rounded-md">
                            <p>Are you sure want to delete the file?</p>
+                           <div class="flex mt-4 items-stretch justify-end">
                            <button @click.away="dialog=false" > Cancel </button>
-                           <button @click.away="dialog=false"  phx-click="remove_image" phx-value-image_id="<%= image.id%>" type="button"> Confirm </button>
+                           <button @click.away="dialog=false"  phx-click="remove_image" phx-value-image_id="<%= image.id%>" type="button" class="ml-6 px-4 py-2 bg-gray-400 rounded-full"> Confirm </button>
+                           </div>
                         </div>
                        <img src="<%= Routes.file_path(@socket, :serve, image.id) %>" class="w-full" />
             </div>
@@ -70,7 +72,7 @@
                     <%= live_img_preview entry %>
                     <% end %>
                 </div>
-                <%= submit("Upload", class: "w-32 ml-auto mr-auto mb-6 px-4 py-2 rounded-full bg-gray-200 text-gray-600") %>
+                <%= if Enum.count(@uploads.images.entries) > 0 do submit("Upload", class: "w-32 ml-auto mr-auto mb-6 px-4 py-2 rounded-full bg-gray-200 text-gray-600") end %>
             </div>
         </section>
     </form>
@@ -87,25 +89,35 @@
             <ul class="block px-3">
             <%= for file <- @files do %>
             <div action="#" x-data="{dialog: false}">
-                <li class="">
-                    <button type="button" @click="dialog=true">
+                <li class="my-3 flex">
+                    -&nbsp;&nbsp;<a href="<%= Routes.file_path(@socket, :serve, file.id) %>" class="underline color-blue-600 align-stretch justify-start">Attachment <%= file.id %> (<%= file.mimetype %>)</a>
+                    <button type="button" x-show="!dialog" @click="dialog=true" class="ml-2">
                         <svg xmlns="http://www.w3.org/2000/svg" class="w-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                         </svg>
                     </button>
-                        <div x-show="dialog">
-                           <p>Are you sure want to delete the file?</p>
-                           <button @click.away="dialog=false"> Cancel </button>
-                           <button @click.away="dialog=false" phx-click="remove_file" phx-value-file_id="<%= file.id%>" type="button"> Confirm </button>
-                        </div>
-                <a href="<%= Routes.file_path(@socket, :serve, file.id) %>" class="underline color-blue-600">file <%= file.id %></a>
+                    <div x-show="dialog" class="inline-block p-2 bg-gray-100 rounded-md">
+                        <p class="inline">Are you sure want to delete the file?</p>
+                        <button @click.away="dialog=false" class="ml-6">Cancel</button>
+                        <button @click.away="dialog=false" phx-click="remove_file" phx-value-file_id="<%= file.id%>" type="button" class="ml-6 px-2 py-1 bg-gray-400 rounded-full">Confirm</button>
+                    </div>
                 </li>
             </div>
             <% end %>
             </ul>
-            <div class="">
-                <%= live_file_input @uploads.files %>
-                <%= submit("Upload") %>
+            <div class="block w-full rounded-md mt-6 py-3 px-3 bg-gray-700 text-gray-200 text-center">
+                <div class="my-6" phx-drop-target="<%= @uploads.files.ref %>">
+                    <label>
+                    Drag files here or click to upload
+                    <div class="hidden"><%= live_file_input @uploads.files %></div>
+                    </label>
+                    <ul>
+                    <%= for entry <- @uploads.files.entries do %>
+                        <li><%= entry.client_name %> (<%= entry.client_type %>)</li>
+                    <% end %>
+                    </ul>
+                </div>
+                <%= if Enum.count(@uploads.files.entries) > 0 do submit("Upload", class: "w-32 ml-auto mr-auto mb-6 px-4 py-2 rounded-full bg-gray-200 text-gray-600") end %>
             </div>
         </section>
     </form>
