@@ -15,7 +15,7 @@ defmodule NotedWeb.PageLive do
         Phoenix.PubSub.subscribe(Noted.PubSub, "note-update:#{user.id}")
 
         socket
-        |> assign(edit_note: nil, search: "")
+        |> assign(edit_note: nil, search: "", tags: [])
         |> assign(checked_ids: [])
         |> refresh_notes()
       end)
@@ -85,24 +85,87 @@ defmodule NotedWeb.PageLive do
     {:noreply, socket}
   end
 
+  @impl true
+  def handle_event("bulktag", %{"bulktag" => %{"text" => tags}}, socket) do
+    tags =
+      tags
+      |> String.downcase()
+      |> String.split([" ", ","], trim: true)
+      |> Enum.uniq()
+
+    {:noreply, assign(socket, tags: tags)}
+  end
+
+  @impl true
+  def handle_event("noop", _, socket) do
+    {:noreply, socket}
+  end
+
+  @impl true
+  def handle_event("add_tag", %{"value" => note_ids}, socket) do
+    tags = socket.assigns.tags
+
+    note_ids =
+      note_ids
+      |> :binary.bin_to_list()
+
+    user_id = socket.assigns.auth.user.id
+
+    Enum.each(note_ids, fn note_id ->
+      Enum.each(tags, fn tag ->
+        Notes.add_tag(user_id, note_id, tag)
+      end)
+    end)
+
+    socket = assign(socket, tags: [], checked_ids: [])
+
+    {:noreply, refresh_notes(socket)}
+  end
+
+  @impl true
+  def handle_event("remove_tag", %{"value" => note_ids}, socket) do
+    tags = socket.assigns.tags
+
+    note_ids =
+      note_ids
+      |> :binary.bin_to_list()
+
+    user_id = socket.assigns.auth.user.id
+
+    Enum.each(note_ids, fn note_id ->
+      Enum.each(tags, fn tag ->
+        Notes.remove_tag(user_id, note_id, tag)
+      end)
+    end)
+
+    socket = assign(socket, tags: [], checked_ids: [])
+
+    {:noreply, refresh_notes(socket)}
+  end
 
   @impl true
   def handle_event("selection", params, socket) do
-    checked_ids = params
-    |> Enum.filter(fn {key, value} ->
-      String.starts_with?(key, "note-") and value == "selected"
-    end)
-    |> Enum.map(fn {"note-" <> id_string, value} ->
-      String.to_integer(id_string)
-    end)
+    checked_ids =
+      params
+      |> Enum.filter(fn {key, value} ->
+        String.starts_with?(key, "note-") and value == "selected"
+      end)
+      |> Enum.map(fn {"note-" <> id_string, _value} ->
+        String.to_integer(id_string)
+      end)
 
     {:noreply, assign(socket, checked_ids: checked_ids)}
   end
 
-    @impl true
-    def handle_event("cancel", _params, socket) do
-      {:noreply, assign(socket, checked_ids: [])}
-    end
+  @impl true
+  def handle_event("cancel", _params, socket) do
+    socket =
+      socket
+
+      |> assign(checked_ids: [])
+      |> assign(tags: [])
+    {:noreply, socket}
+  end
 
   defp filter_by_search(%{assigns: %{search: q, notes: notes}} = socket) do
     found_notes =
