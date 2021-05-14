@@ -367,6 +367,7 @@ defmodule Noted.Notes do
   end
 
   def add_tag(user_id, note_id, tag_name) do
+    tag_name = String.downcase(tag_name)
     {:ok, tag} = get_tag_by_name(tag_name, user_id)
 
     if is_nil(tag) or empty_notes_tags?(note_id, tag.id) do
