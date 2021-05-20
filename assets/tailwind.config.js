@@ -20,6 +20,12 @@ module.exports = {
       black: colors.black,
       white: colors.white,
       gray: colors.gray,
+      dark: {
+        DEFAULT: '#1c1b1d'
+      },
+      light: {
+        DEFAULT: '#f5efef'
+      },
       turquoise: {
         DEFAULT: '#1dceaf'
       },
