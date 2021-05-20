@@ -514,7 +514,7 @@ defmodule Noted.Notes do
 
   """
   def delete_file(%FFile{} = file) do
-    File.rm!(file.path)
+    File.rm(file.path)
     Repo.delete(file)
   end
 

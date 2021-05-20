@@ -5,14 +5,14 @@
     ], fn f -> %>
     <div class="my-4 relative h-8">
         <button phx-click="close"
-                class="absolute top-0 left-0 p-2 px-4 bg-gray-100 text-gray-700 rounded-full"
+                class="absolute top-0 left-0 p-2 px-4 bg-gray-100 text-gray-700 rounded-none rounded-r-lg md:rounded-full"
                 title="Back to notes"
                 >
             <svg class="w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
             </svg>
         </button>
-        <%= submit("Save", class: "absolute top-0 right-0 p-2 px-4 bg-gray-100 text-gray-700 rounded-full") %>
+        <%= submit("Save", class: "absolute top-0 right-0 p-2 px-4 bg-gray-100 text-gray-700 rounded-none rounded-l-lg md:rounded-full") %>
     </div>
 
     <%= text_input(f, :title,
@@ -32,7 +32,7 @@
     <%= error_tag f, :body %>
 <% end %>
 
-<div class="py-1 bg-white rounded-b-md">
+<div class="py-1 bg-white md:rounded-b-md">
     <form phx-submit="upload_images" phx-change="validate_upload">
         <section class="p-6">
             <h3 class="flex my-3 text-lg">
@@ -52,11 +52,11 @@
                             </svg>
                         </button>
                             <div x-show="dialog" class="absolute top-4 right-4 p-4 bg-gray-100 rounded-md">
-                            <p>Are you sure want to delete the file?</p>
-                            <div class="flex mt-4 items-stretch justify-end">
-                            <button @click.away="dialog=false" > Cancel </button>
-                            <button @click.away="dialog=false"  phx-click="remove_image" phx-value-image_id="<%= image.id%>" type="button" class="ml-6 px-4 py-2 bg-gray-400 rounded-full"> Confirm </button>
-                            </div>
+                                <p>Are you sure want to delete the file?</p>
+                                <div class="flex mt-4 items-stretch justify-end">
+                                    <button @click.away="dialog=false" > Cancel </button>
+                                    <button @click.away="dialog=false"  phx-click="remove_image" phx-value-image_id="<%= image.id%>" type="button" class="ml-6 px-4 py-2 bg-gray-400 rounded-full"> Confirm </button>
+                                </div>
                             </div>
                         <img src="<%= Routes.file_path(@socket, :serve, image.id) %>" class="w-full" />
                 </div>
@@ -90,18 +90,21 @@
             </h3>
             <ul class="block px-3">
             <%= for file <- @files do %>
-            <div action="#" x-data="{dialog: false}">
-                <li class="my-3 flex">
+            <div action="#" x-data="{dialog: false}" class="relative">
+                <li class="my-3">
                     -&nbsp;&nbsp;<a href="<%= Routes.file_path(@socket, :serve, file.id) %>" class="underline color-blue-600 align-stretch justify-start">Attachment <%= file.id %> (<%= file.mimetype %>)</a>
                     <button type="button" x-show="!dialog" @click="dialog=true" class="ml-2">
                         <svg xmlns="http://www.w3.org/2000/svg" class="w-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                         </svg>
                     </button>
-                    <div x-show="dialog" class="inline-block p-2 bg-gray-100 rounded-md">
-                        <p class="inline">Are you sure want to delete the file?</p>
-                        <button @click.away="dialog=false" class="ml-6">Cancel</button>
-                        <button @click.away="dialog=false" phx-click="remove_file" phx-value-file_id="<%= file.id%>" type="button" class="ml-6 px-2 py-1 bg-gray-400 rounded-full">Confirm</button>
+                    <div x-show="dialog" class="absolute top-0 left-0 inline-block p-2 bg-gray-100 rounded-md">
+                        <p>Are you sure want to delete the file?</p>
+                        <p>Attachment <%= file.id %> (<%= file.mimetype %>)</p>
+                        <div class="flex mt-2">
+                            <button @click.away="dialog=false" class="ml-6 flex-grow">Cancel</button>
+                            <button @click.away="dialog=false" phx-click="remove_file" phx-value-file_id="<%= file.id%>" type="button" class="flex-grow ml-6 px-2 py-1 bg-gray-400 rounded-full">Confirm</button>
+                        </div>
                     </div>
                 </li>
             </div>
@@ -123,7 +126,7 @@
             </div>
         </section>
     </form>
-    <section class="flex my-8 mx-6 w-full flex-wrap">
+    <section class="flex my-8 px-6 w-full flex-wrap">
         <%= for tag <- @note.tags do %>
             <div class="flex py-1 px-3 mr-2 mt-2 rounded-full bg-gray-600 text-gray-100">
                 <div class="mr-2">#<%= tag.name %></div>
