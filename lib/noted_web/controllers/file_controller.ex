@@ -8,7 +8,8 @@ defmodule NotedWeb.FileController do
 
     # Check user owns the file
     if note.user_id == user_id do
-      send_download(conn, {:file, file.path}, filename: Path.basename(file.path))
+      filename = file.filename || Path.basename(file.path)
+      send_download(conn, {:file, file.path}, filename: filename)
     else
       put_status(conn, :not_found)
     end

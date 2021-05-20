@@ -3,6 +3,7 @@ defmodule Noted.Notes.File do
   import Ecto.Changeset
 
   schema "files" do
+    field :filename, :string
     field :mimetype, :string
     field :path, :string
     field :size, :integer
@@ -15,7 +16,7 @@ defmodule Noted.Notes.File do
   @doc false
   def changeset(file, attrs) do
     file
-    |> cast(attrs, [:path, :size, :mimetype, :note_id])
+    |> cast(attrs, [:path, :size, :mimetype, :note_id, :filename])
     |> validate_required([:path, :size, :mimetype, :note_id])
   end
 end

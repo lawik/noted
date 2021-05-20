@@ -20,6 +20,7 @@ defmodule NotedWeb.NoteLive do
         |> allow_upload(:images, accept: ~w(.jpg .jpeg .png .gif), max_entries: 10)
         |> allow_upload(:files, accept: :any, max_entries: 10)
       end)
+
     {:ok, socket}
   end
 
@@ -85,13 +86,19 @@ defmodule NotedWeb.NoteLive do
 
   @impl true
   def handle_event("upload_images", _params, socket) do
-    consume_uploaded_entries(socket, :images, fn %{path: path},
-                                                 %{client_type: mime, client_size: size} ->
+    consume_uploaded_entries(socket, :images, fn %{path: path}, upload ->
+      %{
+        client_type: mime,
+        client_size: size,
+        client_name: filename
+      } = upload
+
       dest = Notes.file_storage_path(Path.basename(path))
       File.cp!(path, dest)
 
       {:ok, _file} =
         Notes.create_file(%{
+          filename: filename,
           mimetype: mime,
           path: dest,
           size: size,
@@ -107,13 +114,19 @@ defmodule NotedWeb.NoteLive do
 
   @impl true
   def handle_event("upload_files", _params, socket) do
-    consume_uploaded_entries(socket, :files, fn %{path: path},
-                                                %{client_type: mime, client_size: size} ->
+    consume_uploaded_entries(socket, :files, fn %{path: path}, upload ->
+      %{
+        client_type: mime,
+        client_size: size,
+        client_name: filename
+      } = upload
+
       dest = Notes.file_storage_path(Path.basename(path))
       File.cp!(path, dest)
 
       {:ok, _file} =
         Notes.create_file(%{
+          filename: filename,
           mimetype: mime,
           path: dest,
           size: size,
@@ -154,5 +167,4 @@ defmodule NotedWeb.NoteLive do
     images
     |> Enum.filter(&String.starts_with?(&1.mimetype, "image/"))
   end
-
 end
