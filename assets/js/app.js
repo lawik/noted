@@ -22,6 +22,8 @@ let csrfToken = document
   .querySelector("meta[name='csrf-token']")
   .getAttribute("content");
 
+const maxDelay = 1500;
+let chillers = {};
 let hooks = {};
 hooks.ContentEditable = {
   mounted() {
@@ -29,7 +31,12 @@ hooks.ContentEditable = {
     let targetInput = form.querySelector(`[name="${this.el.dataset.name}"]`);
     this.el.addEventListener("input", () => {
       targetInput.innerText = this.el.innerText;
-      targetInput.dispatchEvent(new Event("input", { bubbles: true }));
+      if (chillers[this.el.dataset.name] != undefined) {
+        window.clearTimeout(chillers[this.el.dataset.name]);
+      }
+      chillers[this.el.dataset.name] = window.setTimeout(() => {
+        targetInput.dispatchEvent(new Event("input", { bubbles: true }));
+      }, maxDelay);
     });
   },
 };

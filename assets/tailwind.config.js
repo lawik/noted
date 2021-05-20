@@ -9,9 +9,6 @@ module.exports = {
     "./js/**/*.js",
   ],
   darkMode: false,
-  theme: {
-    extend: {},
-  },
   plugins: [],
   theme: {
     colors: {

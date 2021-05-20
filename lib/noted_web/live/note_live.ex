@@ -17,8 +17,18 @@ defmodule NotedWeb.NoteLive do
         |> assign(images: filter_images(note.files))
         |> assign(files: filter_files(note.files))
         |> assign(changeset: changeset, note: note)
-        |> allow_upload(:images, accept: ~w(.jpg .jpeg .png .gif), max_entries: 10)
-        |> allow_upload(:files, accept: :any, max_entries: 10)
+        |> allow_upload(:images,
+          accept: ~w(.jpg .jpeg .png .gif),
+          max_entries: 10,
+          auto_upload: true,
+          progress: &handle_progress/3
+        )
+        |> allow_upload(:files,
+          accept: :any,
+          max_entries: 10,
+          auto_upload: true,
+          progress: &handle_progress/3
+        )
       end)
 
     {:ok, socket}
@@ -156,6 +166,67 @@ defmodule NotedWeb.NoteLive do
   @impl true
   def handle_event("close", _, socket) do
     {:noreply, redirect(socket, to: "/")}
+  end
+
+  defp handle_progress(:files, entry, socket) do
+    if entry.done? do
+      consume_uploaded_entry(socket, entry, fn %{path: path} ->
+        %{
+          client_type: mime,
+          client_size: size,
+          client_name: filename
+        } = entry
+
+        dest = Notes.file_storage_path(Path.basename(path))
+        File.cp!(path, dest)
+
+        {:ok, _file} =
+          Notes.create_file(%{
+            filename: filename,
+            mimetype: mime,
+            path: dest,
+            size: size,
+            note_id: socket.assigns.note.id
+          })
+      end)
+
+      note = Notes.get_note!(socket.assigns.note.id)
+      files = filter_files(note.files)
+
+      {:noreply, assign(socket, note: note, files: files)}
+    else
+      {:noreply, socket}
+    end
+  end
+
+  defp handle_progress(:images, entry, socket) do
+    if entry.done? do
+      consume_uploaded_entry(socket, entry, fn %{path: path} ->
+        %{
+          client_type: mime,
+          client_size: size,
+          client_name: filename
+        } = entry
+
+        dest = Notes.file_storage_path(Path.basename(path))
+        File.cp!(path, dest)
+
+        {:ok, _file} =
+          Notes.create_file(%{
+            filename: filename,
+            mimetype: mime,
+            path: dest,
+            size: size,
+            note_id: socket.assigns.note.id
+          })
+      end)
+
+      note = Notes.get_note!(socket.assigns.note.id)
+      images = filter_images(note.files)
+      {:noreply, assign(socket, note: note, images: images)}
+    else
+      {:noreply, socket}
+    end
   end
 
   defp filter_files(files) do
