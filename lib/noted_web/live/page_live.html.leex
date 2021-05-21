@@ -29,35 +29,36 @@
         phx-change="bulktag"
         phx-submit="noop"
         x-data="{confirmDelete: false}"
-        class="fixed -top-1 left-0 right-0 z-10 flex bg-gray-900 text-gray-100 p-3"
+        class="fixed -top-1 left-0 right-0 z-10 md:flex bg-gray-900 text-gray-100 p-3"
     >
-        <div class="flex-grow p-1 ">
+        <div class="md:flex-grow p-1 ">
             <span> selected <%= length(@checked_ids) %> </span>
         </div>
-            <%= if length(@tags) > 0 do  %>
-            <div class="flex items-center justify-end" x-show="!confirmDelete">
-                <%= for tag <- @tags do %>
-                <span class="flex mr-3 items-center justify-end">
-                    <svg data-svgs-path="sm1/quick_add_label.svg"
-	                xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16">
-	                <path fill="currentColor" fill-rule="nonzero"
-                         d="M7.828 2H12a2 2 0 0 1 2 2v4.172a2 2 0 0 1-.586 1.414l-4 4a2 2 0 0 1-2.828 0L2.414 9.414a2 2 0 0 1 0-2.828l4-4A2 2 0 0 1 7.828 2zm0 1a1 1 0 0 0-.707.293l-4 4a1 1 0 0 0 0 1.414l4.172 4.172a1 1 0 0 0 1.414 0l4-4A1 1 0 0 0 13 8.172V4a1 1 0 0 0-1-1H7.828zM10 7a1 1 0 1 1 0-2 1 1 0 0 1 0 2z">
-                     </path>
-                    </svg>
-                    <p> <%= tag %> </p>
-                </span>
-                <% end %>
-            </div>
+        <%= if length(@tags) > 0 do  %>
+        <div class="flex items-center md:justify-end" x-show="!confirmDelete">
+            <%= for tag <- @tags do %>
+            <span class="flex mr-3 items-center md:justify-end">
+                <svg data-svgs-path="sm1/quick_add_label.svg"
+                xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16">
+                <path fill="currentColor" fill-rule="nonzero"
+                    d="M7.828 2H12a2 2 0 0 1 2 2v4.172a2 2 0 0 1-.586 1.414l-4 4a2 2 0 0 1-2.828 0L2.414 9.414a2 2 0 0 1 0-2.828l4-4A2 2 0 0 1 7.828 2zm0 1a1 1 0 0 0-.707.293l-4 4a1 1 0 0 0 0 1.414l4.172 4.172a1 1 0 0 0 1.414 0l4-4A1 1 0 0 0 13 8.172V4a1 1 0 0 0-1-1H7.828zM10 7a1 1 0 1 1 0-2 1 1 0 0 1 0 2z">
+                </path>
+                </svg>
+                <p> <%= tag %> </p>
+            </span>
             <% end %>
+        </div>
+        <% end %>
+        <div class="mr-3 px-2 my-2">
         <%= text_input(:bulktag, :text,
             autocomplete: "off",
-            "x-show": "!confirmDelete;",
-            class: "mr-3 px-2 bg-gray-500 text-gray-100 rounded-md",
+            class: "bg-gray-500 px-2 text-gray-100 rounded-md",
             placeholder: "your, tag, here",
             value: @tags) %>
+        </div>
 
+        <div class="px-2 my-2">
             <button
-            x-show="!confirmDelete"
             <%= if length(@tags) == 0 do %>disabled="disabled"<% end %>
             class="mr-3 bg-gray-700 text-gray-200 p-1 px-2 rounded-md disabled:opacity-50"
             phx-click="add_tag"
@@ -66,13 +67,14 @@
 
             <button
             type="submit"
-            x-show="!confirmDelete"
             <%= if length(@tags) == 0 do %>disabled="disabled"<% end %>
             class="mr-3 bg-gray-700 text-gray-200 p-1 px-2 rounded-md disabled:opacity-50"
             phx-click="remove_tag"
             value="<%= @checked_ids %>"
             >Remove tags</button>
+        </div>
 
+        <div class="px-2 my-2">
             <button
                 type="button"
                 x-show="!confirmDelete"
