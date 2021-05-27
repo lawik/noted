@@ -40,3 +40,6 @@ database.db
 database.db-shm
 database.db-wal
 files
+noted_test
+noted_test-shm
+noted_test-wal
