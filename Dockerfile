@@ -15,8 +15,6 @@ WORKDIR /app
 
 # set build ENV
 ENV MIX_ENV=prod
-ENV NODE_ENV=production
-
 
 # install mix dependencies
 COPY mix.exs mix.lock ./
@@ -29,7 +27,9 @@ RUN mix local.hex --force && \
 
 # build assets
 COPY assets/package.json assets/package-lock.json ./assets/
+RUN npm --prefix ./assets ci --progress=false --no-audit --loglevel=error
 
+COPY lib lib
 COPY priv priv
 COPY assets assets
 RUN npm run deploy --prefix ./assets && \
@@ -37,7 +37,6 @@ RUN npm run deploy --prefix ./assets && \
 
 
 # compile and build release
-COPY lib lib
 
 RUN mix do compile, release
 
