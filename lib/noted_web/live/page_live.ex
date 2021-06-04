@@ -161,9 +161,9 @@ defmodule NotedWeb.PageLive do
   def handle_event("cancel", _params, socket) do
     socket =
       socket
-
       |> assign(checked_ids: [])
       |> assign(tags: [])
+
     {:noreply, socket}
   end
 

@@ -34,7 +34,7 @@ npm-debug.log
 /priv/static/
 
 .iex.exs
-.env
+./.env
 
 database.db
 database.db-shm

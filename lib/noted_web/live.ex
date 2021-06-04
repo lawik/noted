@@ -17,7 +17,7 @@ defmodule NotedWeb.Live do
 
     profile =
       if user do
-       user.telegram_data
+        user.telegram_data
       else
         nil
       end

@@ -1,0 +1,26 @@
+services:
+    grafana:
+      image: grafana/grafana:7.5.7
+      network_mode: 'host'
+      depends_on:
+        - prometheus
+      volumes:
+        - grafana-data:/var/lib/grafana/
+      env_file:
+        - ./docker/grafana/.env
+  
+    prometheus:
+      image: prom/prometheus:v2.27.1
+      network_mode: 'host'
+      volumes:
+        - ./docker/prometheus/:/etc/prometheus/
+        - prometheus-data:/prometheus
+      command:
+        - '--config.file=/etc/prometheus/config.yml'
+        - '--storage.tsdb.path=/prometheus'
+        - '--web.console.libraries=/usr/share/prometheus/console_libraries'
+        - '--web.console.templates=/usr/share/prometheus/consoles'
+  
+volumes:
+    grafana-data:
+    prometheus-data:

@@ -13,7 +13,6 @@ defmodule Noted.Accounts.User do
   @doc false
   def changeset(user, attrs) do
     user
-
     |> cast(attrs, [:telegram_id, :telegram_data, :photo_path])
     |> validate_required([:telegram_id, :telegram_data])
   end

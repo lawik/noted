@@ -12,6 +12,7 @@ defmodule Noted.Application do
 
     children =
       [
+        Noted.PromEx,
         # Start the Ecto repository
         Noted.Repo,
         # Start the Telemetry supervisor

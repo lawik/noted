@@ -25,20 +25,22 @@ defmodule Noted.Telegram.BotPollerTest do
       Phoenix.PubSub.broadcast!(Noted.PubSub, "test-telegram:#{key}", {:get_updates, params})
 
       last_seen = Keyword.get(params, :offset)
-      updates = if last_seen > @update_id do
-        []
-      else
-        [
-          %{
-            "from" => %{
-              "username" => "test_bot"
-            },
-            "message_id" => 1,
-            "text" => "hey what's up",
-            "update_id" => @update_id
-          }
-        ]
-      end
+
+      updates =
+        if last_seen > @update_id do
+          []
+        else
+          [
+            %{
+              "from" => %{
+                "username" => "test_bot"
+              },
+              "message_id" => 1,
+              "text" => "hey what's up",
+              "update_id" => @update_id
+            }
+          ]
+        end
 
       {:ok, updates}
     end
@@ -92,7 +94,6 @@ defmodule Noted.Telegram.BotPollerTest do
     Phoenix.PubSub.subscribe(Noted.PubSub, "test-telegram:#{key}")
     Phoenix.PubSub.subscribe(Noted.PubSub, "telegram_bot_update:#{state_id}")
 
-
     assert {:ok, pid} =
              Noted.Telegram.BotPoller.start_link(
                bot_key: key,
@@ -101,20 +102,25 @@ defmodule Noted.Telegram.BotPollerTest do
 
     assert_receive :get_me
     assert_receive {:get_updates, [offset: -1, timeout: 30]}
-    last_seen = Enum.reduce(1..3, 0, fn _count, last_seen ->
-      assert_receive {:update,
-                    %{
-                      "from" => %{"username" => "test_bot"},
-                      "message_id" => _,
-                      "text" => "hey what's up",
-                      "update_id" => update_id
-                    }}
-      if last_seen > 0 do
-        assert update_id > last_seen
-        assert update_id == last_seen + 1
-      end
-      update_id
-    end) + 1
+
+    last_seen =
+      Enum.reduce(1..3, 0, fn _count, last_seen ->
+        assert_receive {:update,
+                        %{
+                          "from" => %{"username" => "test_bot"},
+                          "message_id" => _,
+                          "text" => "hey what's up",
+                          "update_id" => update_id
+                        }}
+
+        if last_seen > 0 do
+          assert update_id > last_seen
+          assert update_id == last_seen + 1
+        end
+
+        update_id
+      end) + 1
+
     assert_receive {:get_updates, [offset: ^last_seen, timeout: 30]}
     refute_received {:update, _}
     GenServer.stop(pid, :normal)
@@ -135,6 +141,7 @@ defmodule Noted.Telegram.BotPollerTest do
     assert_receive :get_me
 
     assert_receive {:get_updates, [offset: -1, timeout: 30]}
+
     assert_receive {:update,
                     %{
                       "from" => %{"username" => "test_bot"},
@@ -142,6 +149,7 @@ defmodule Noted.Telegram.BotPollerTest do
                       "text" => "hey what's up",
                       "update_id" => 677_244_601 = update_id
                     }}
+
     last_seen = update_id + 1
     assert_receive {:get_updates, [offset: ^last_seen, timeout: 30]}
     refute_received {:update, _}

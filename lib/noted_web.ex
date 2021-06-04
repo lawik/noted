@@ -1,4 +1,3 @@
-
 defmodule NotedWeb do
   @moduledoc """
   The entrypoint for defining your web interface, such

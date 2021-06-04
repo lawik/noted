@@ -17,6 +17,20 @@ config :noted, Noted.Repo,
   temp_store: :memory,
   pool_size: 1
 
+auth_token = System.get_env("GRAFANA_AUTH_TOKEN") || IO.puts("No grafana token set.")
+
+config :noted, Noted.PromEx,
+  manual_metrics_start_delay: :no_delay,
+  drop_metrics_groups: [],
+  grafana: [
+    host: "http://localhost:3000",
+    auth_token: auth_token,
+    upload_dashboards_on_start: true,
+    folder_name: "Notes Dashboards",
+    annotate_app_lifecycle: true
+  ],
+  metrics_server: :disabled
+
 # For development, we disable any cache and enable
 # debugging and code reloading.
 #

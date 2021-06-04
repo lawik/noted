@@ -14,6 +14,7 @@ defmodule Noted.Telegram do
   def get_user_profile_photos(key, params) do
     Telegram.Api.request(key, "getUserProfilePhotos", params)
   end
+
   def get_file(key, params) do
     Telegram.Api.request(key, "getFile", params)
   end

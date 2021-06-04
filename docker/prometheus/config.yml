@@ -1,0 +1,16 @@
+global:
+  scrape_interval: 5s
+  evaluation_interval: 5s
+
+  external_labels:
+    monitor: 'elixir_app'
+
+scrape_configs:
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+
+  - job_name: 'elixir_app'
+    static_configs:
+      - targets:
+          - 'localhost:4000'

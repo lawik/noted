@@ -23,9 +23,12 @@ defmodule Noted.NotesTest do
       note
     end
 
-
     setup do
-      {:ok, user} = Accounts.create_user(%{telegram_id: System.unique_integer([:positive]), telegram_data: %{}})
+      {:ok, user} =
+        Accounts.create_user(%{
+          telegram_id: System.unique_integer([:positive]),
+          telegram_data: %{}
+        })
 
       {:ok, %{user: user}}
     end
@@ -40,7 +43,6 @@ defmodule Noted.NotesTest do
       missing_user_id = System.unique_integer([:positive])
       assert Notes.list_notes(missing_user_id) == []
     end
-
 
     test "get_note!/1 returns the note with given id", context do
       user = context.user
@@ -91,7 +93,6 @@ defmodule Noted.NotesTest do
   describe "tags" do
     alias Noted.Notes.Tag
     alias Noted.Notes.NotesTags
-
 
     @valid_attrs %{name: "some name"}
     @update_attrs %{name: "some updated name"}
@@ -224,12 +225,12 @@ defmodule Noted.NotesTest do
       file
     end
 
-     setup do
-       telegram_id = System.unique_integer([:positive])
-       {:ok, user} = Accounts.create_user(%{telegram_id: telegram_id, telegram_data: %{}})
-       {:ok, note} = Notes.create_note(user.id, "test title", "test body", [])
-       {:ok, %{user: user, note: note}}
-     end
+    setup do
+      telegram_id = System.unique_integer([:positive])
+      {:ok, user} = Accounts.create_user(%{telegram_id: telegram_id, telegram_data: %{}})
+      {:ok, note} = Notes.create_note(user.id, "test title", "test body", [])
+      {:ok, %{user: user, note: note}}
+    end
 
     test "list_files/0 returns all files", context do
       note = context.note
@@ -276,16 +277,17 @@ defmodule Noted.NotesTest do
       assert file == Notes.get_file!(file.id)
     end
 
-     test "delete_file/1 deletes the file", context do
+    test "delete_file/1 deletes the file", context do
       note = context.note
       path = "/tmp/a.txt"
       Elixir.File.touch(path)
 
-      {:ok, file} = Notes.create_file(%{mimetype: "some mimetype", path: path, size: 42, note_id: note.id})
+      {:ok, file} =
+        Notes.create_file(%{mimetype: "some mimetype", path: path, size: 42, note_id: note.id})
 
       assert {:ok, %File{}} = Notes.delete_file(file)
-       assert_raise Ecto.NoResultsError, fn -> Notes.get_file!(file.id) end
-     end
+      assert_raise Ecto.NoResultsError, fn -> Notes.get_file!(file.id) end
+    end
 
     test "change_file/1 returns a file changeset", context do
       note = context.note
