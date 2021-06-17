@@ -28,11 +28,13 @@ secret_key_base =
     You can generate one by calling: mix phx.gen.secret
     """
 
+port = String.to_integer(System.get_env("PORT") || "4000")
 config :noted, NotedWeb.Endpoint,
   http: [
-    port: String.to_integer(System.get_env("PORT") || "4000"),
+    port: port,
     transport_options: [socket_opts: [:inet6]]
   ],
+  url: [host: System.get_env("HOST", "localhost"), port: port],
   secret_key_base: secret_key_base
 
 # ## Using releases (Elixir v1.9+)
