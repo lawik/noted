@@ -1,0 +1,47 @@
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: argocd
+
+# https://argoproj.github.io/argo-cd/operator-manual/ingress/#traefik-v22
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: argocd-server
+  namespace: argocd
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - kind: Rule
+      # TODO: config 1/5
+      match: Host(`argocd.k3s.gerhard.io`)
+      priority: 10
+      services:
+        - name: argocd-server
+          port: 80
+    - kind: Rule
+      # TODO: config 2/5
+      match: Host(`argocd.k3s.gerhard.io`) && Headers(`Content-Type`, `application/grpc`)
+      priority: 11
+      services:
+        - name: argocd-server
+          port: 80
+          scheme: h2c
+---
+apiVersion: externaldns.k8s.io/v1alpha1
+kind: DNSEndpoint
+metadata:
+  # TODO: config 3/5
+  name: argocd.k3s.gerhard.io
+  namespace: argocd
+spec:
+  endpoints:
+    # TODO: config 4/5
+    - dnsName: argocd.k3s.gerhard.io
+      recordType: A
+      targets:
+        # TODO: config 4/5
+        - 139.162.200.52

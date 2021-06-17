@@ -10,7 +10,10 @@ use Mix.Config
 # which you should run after static files are built and
 # before starting your production server.
 config :noted, NotedWeb.Endpoint,
-  url: [host: "127.0.0.1", port: 4000],
+  url: [
+    host: System.get_env("URL_HOST", "127.0.0.1"),
+    port: System.get_env("URL_PORT", "4000")
+  ],
   cache_static_manifest: "priv/static/cache_manifest.json"
 
 # Do not print debug messages in production

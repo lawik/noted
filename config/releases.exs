@@ -13,7 +13,7 @@ database_url =
 
 config :noted, Noted.Repo,
   url: database_url,
-  pool_size: String.to_integer(System.get_env("POOL_SIZE") || "10"),
+  pool_size: String.to_integer(System.get_env("POOL_SIZE", "10")),
   show_sensitive_data_on_connection_error: false,
   journal_mode: :wal,
   cache_size: -64000,
@@ -28,13 +28,15 @@ secret_key_base =
     You can generate one by calling: mix phx.gen.secret
     """
 
-port = String.to_integer(System.get_env("PORT") || "4000")
 config :noted, NotedWeb.Endpoint,
+  url: [
+    host: System.get_env("URL_HOST", "127.0.0.1"),
+    port: System.get_env("URL_PORT", "4000")
+  ],
   http: [
-    port: port,
+    port: String.to_integer(System.get_env("PORT", "4000")),
     transport_options: [socket_opts: [:inet6]]
   ],
-  url: [host: System.get_env("HOST", "localhost"), port: port],
   secret_key_base: secret_key_base
 
 # ## Using releases (Elixir v1.9+)

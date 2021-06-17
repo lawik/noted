@@ -14,7 +14,7 @@ database_url =
 config :noted, Noted.Repo,
   # ssl: true,
   url: database_url,
-  pool_size: String.to_integer(System.get_env("POOL_SIZE") || "10")
+  pool_size: String.to_integer(System.get_env("POOL_SIZE", "10"))
 
 secret_key_base =
   System.get_env("SECRET_KEY_BASE") ||
@@ -24,8 +24,12 @@ secret_key_base =
     """
 
 config :noted, NotedWeb.Endpoint,
+  url: [
+    host: System.get_env("URL_HOST", "127.0.0.1"),
+    port: System.get_env("URL_PORT", "4000")
+  ],
   http: [
-    port: String.to_integer(System.get_env("PORT") || "4000"),
+    port: String.to_integer(System.get_env("PORT", "4000")),
     transport_options: [socket_opts: [:inet6]]
   ],
   secret_key_base: secret_key_base
