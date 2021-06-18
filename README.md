@@ -9,6 +9,7 @@ To get started:
   * Create a Telegram bot as [instructed here](https://core.telegram.org/bots#6-botfather).
   * Make sure to set environment variables: TELEGRAM_BOT_SECRET and TELEGRAM_BOT_NAME to the respective values for your bot.
   * Start Phoenix endpoint with `mix phx.server`
+  * To start a docker container instance `docker run -p 4000:4000  -e DATABASE_URL="ecto://./database.db" -e TELEGRAM_BOT_NAME=" " -e TELEGRAM_BOT_SECRET=" " -e SECRET_KEY_BASE=" " noted` and replace env var.
 
 Now you can visit [`localhost:4000`](http://localhost:4000) from your browser.
 

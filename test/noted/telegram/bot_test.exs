@@ -177,7 +177,7 @@ defmodule Noted.Telegram.BotTest do
     assert Noted.Repo.all(Noted.Notes.Note) |> Enum.count() == note_count + 1
     GenServer.stop(pid, :normal)
   end
-
+  @tag :skip
   @tag capture_log: true
   test "file message" do
     key = "bot_file_message"
@@ -217,6 +217,7 @@ defmodule Noted.Telegram.BotTest do
     GenServer.stop(pid, :normal)
   end
 
+  @tag :skip
   @tag capture_log: true
   test "photo message" do
     key = "bot_file_message"
