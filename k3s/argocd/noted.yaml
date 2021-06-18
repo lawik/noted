@@ -17,7 +17,7 @@ spec:
       containers:
         - name: noted
           # TODO: config 1/7
-          image: gerhard/noted:2021-06-18T10.42.36Z
+          image: gerhard/noted:2021-06-18T13.23.10Z
           env:
             - name: URL_HOST
               # TODO: config 2/7
