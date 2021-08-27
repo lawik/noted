@@ -4,16 +4,8 @@
 # remember to add this file to your .gitignore.
 import Config
 
-database_url =
-  System.get_env("DATABASE_URL") ||
-    raise """
-    environment variable DATABASE_URL is missing.
-    For example: ecto://USER:PASS@HOST/DATABASE
-    """
-
 config :noted, Noted.Repo,
-  url: database_url,
-  pool_size: String.to_integer(System.get_env("POOL_SIZE") || "10"),
+  database: System.get_env("DATABASE_FILEPATH") || raise "No DATABASE_FILEPATH provided."
   show_sensitive_data_on_connection_error: false,
   journal_mode: :wal,
   cache_size: -64000,
