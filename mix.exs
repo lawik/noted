@@ -55,7 +55,8 @@ defmodule Noted.MixProject do
       {:credo, "~> 1.5", only: [:dev, :test], runtime: false},
       {:ecto, "~> 3.6"},
       {:exqlite, "~> 0.6"},
-      {:ecto_sqlite3, "~> 0.5.5"}
+      {:ecto_sqlite3, "~> 0.5.5"},
+      {:slugify, "~> 1.3"}
     ]
   end
 

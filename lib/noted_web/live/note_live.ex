@@ -17,6 +17,7 @@ defmodule NotedWeb.NoteLive do
         |> assign(images: filter_images(note.files))
         |> assign(files: filter_files(note.files))
         |> assign(changeset: changeset, note: note)
+        |> assign(tag: "")
         |> allow_upload(:images,
           accept: ~w(.jpg .jpeg .png .gif),
           max_entries: 10,
