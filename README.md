@@ -1,4 +1,4 @@
-# Noted [![Elixir CI](https://github.com/m13m/noted/actions/workflows/elixir.yml/badge.svg?branch=main)](https://github.com/m13m/noted/actions/workflows/elixir.yml)
+# Noted [![Elixir CI](https://github.com/lawik/noted/actions/workflows/elixir.yml/badge.svg?branch=main)](https://github.com/lawik/noted/actions/workflows/elixir.yml)
 
 To get started:
 
