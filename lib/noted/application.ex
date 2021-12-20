@@ -18,10 +18,10 @@ defmodule Noted.Application do
         NotedWeb.Telemetry,
         # Start the PubSub system
         {Phoenix.PubSub, name: Noted.PubSub},
-        # Start the Endpoint (http/https)
-        NotedWeb.Endpoint,
         # Telegram bot stuff
         Noted.Telegram.Auth
+        # Start the Endpoint (http/https)
+        NotedWeb.Endpoint,
       ] ++ load_bots()
 
     # See https://hexdocs.pm/elixir/Supervisor.html
