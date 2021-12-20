@@ -43,3 +43,4 @@ files
 noted_test
 noted_test-shm
 noted_test-wal
+.env.sh
