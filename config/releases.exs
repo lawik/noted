@@ -4,7 +4,7 @@
 # remember to add this file to your .gitignore.
 import Config
 
-database_url =
+database_path =
   System.get_env("DATABASE_PATH") ||
     raise """
     environment variable DATABASE_PATH is missing.
