@@ -1,37 +1,15 @@
-const colors = require('tailwindcss/colors')
-
+// See the Tailwind configuration guide for advanced usage
+// https://tailwindcss.com/docs/configuration
 module.exports = {
-  mode: 'jit',
-  purge: [
-    "../lib/**/*.ex",
-    "../lib/**/*.leex",
-    "../lib/**/*.eex",
-    "./js/**/*.js",
+  content: [
+    './js/**/*.js',
+    '../lib/*_web.ex',
+    '../lib/*_web/**/*.*ex'
   ],
-  darkMode: false,
-  plugins: [],
   theme: {
-    colors: {
-      transparent: 'transparent',
-      current: 'currentColor',
-      black: colors.black,
-      white: colors.white,
-      gray: colors.gray,
-      dark: {
-        DEFAULT: '#1c1b1d'
-      },
-      light: {
-        DEFAULT: '#f5efef'
-      },
-      turquoise: {
-        DEFAULT: '#1dceaf'
-      },
-      purple: {
-        DEFAULT: '#7552ec'
-      },
-      pink: {
-        DEFAULT: '#d139c8'
-      }
-    }
-  }
-};
+    extend: {},
+  },
+  plugins: [
+    require('@tailwindcss/forms')
+  ]
+}

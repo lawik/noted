@@ -20,19 +20,22 @@
     </div>
 
     <%= text_input(f, :title,
-        class: "block w-full p-6 text-xl text-center text-gray-800 bg-white md:rounded-t-md focus:outline-none"
+        class: "block w-full p-6 text-xl text-center text-gray-800 bg-white md:rounded-t-md focus:outline-none border-0"
         ) %>
         <%= error_tag f, :title %>
-    <div
-        class="block flex-grow w-full p-6 overflow-auto bg-white text-gray-800 focus:outline-none hover:bg-gray-100"
+    <!-- <div
+        class="block flex-grow w-full p-6 overflow-auto bg-white text-gray-800 focus:outline-none hover:bg-gray-100 whitespace-pre-wrap"
         id="body-editable"
         contenteditable="true"
         phx-update="ignore"
         phx-hook="ContentEditable"
         data-name="note[body]"
-        ><%= @note.body %></div>
+        ><%= @note.body %></div>-->
 
     <%= textarea(f, :body, style: "display: none;") %>
+    <div phx-update="ignore">
+      <textarea name="fake_body" id="editor" phx-hook="MarkdownEditor" data-name="note[body]"><%= @note.body %></textarea>
+    </div>
     <%= error_tag f, :body %>
 <% end %>
 
@@ -157,7 +160,7 @@
         <form phx-submit="add_tag" class="py-1 px-3 mt-2 rounded-full bg-gray-700 text-gray-200">
             <%= text_input(:tag, :tag_name,
                 autocomplete: "off",
-                class: "bg-transparent focus:outline-none",
+                class: "bg-transparent focus:outline-none border-0",
                 placeholder: "Add tag",
                 value: "") %>
 

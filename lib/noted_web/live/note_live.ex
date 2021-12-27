@@ -165,6 +165,19 @@ defmodule NotedWeb.NoteLive do
   end
 
   @impl true
+  def handle_event("save-note", text, socket) do
+    case Notes.update_note(socket.assigns.note, %{"body" => text}) do
+      {:error, changeset} ->
+        {:noreply, assign(socket, changeset: changeset)}
+
+      {:ok, _note} ->
+        note = Notes.get_note!(socket.assigns.note.id)
+        changeset = Notes.change_note(note)
+        {:noreply, assign(socket, note: note, changeset: changeset)}
+    end
+  end
+
+  @impl true
   def handle_event("close", _, socket) do
     {:noreply, redirect(socket, to: "/")}
   end

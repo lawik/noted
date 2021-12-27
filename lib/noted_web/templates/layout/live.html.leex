@@ -1,11 +1,15 @@
-<main role="main" class="md:container md:mx-auto mt-4 md:mb-8">
-  <p class="alert alert-info m-4" role="alert"
+<main role="main" class="md:container md:mx-auto md:mb-8 md:mt-4">
+  <%= if info = live_flash(@flash, :info) do %>
+  <p class="p-4 bg-gray-100 md:rounded-md md:mb-4 md:m-4" role="alert"
     phx-click="lv:clear-flash"
-    phx-value-key="info"><%= live_flash(@flash, :info) %></p>
+    phx-value-key="info"><%= info %></p>
+  <% end %>
 
-  <p class="alert alert-danger m-4" role="alert"
+  <%= if error = live_flash(@flash, :error) do %>
+  <p class="p-4 text-gray-100 bg-gray-900 md:rounded-md md:m-4" role="alert"
     phx-click="lv:clear-flash"
-    phx-value-key="error"><%= live_flash(@flash, :error) %></p>
+    phx-value-key="error"><%= error %></p>
+  <% end %>
 
   <div class="md:mx-4">
   <%= live_component @socket, NotedWeb.Live.Components.Auth, auth: @auth %>

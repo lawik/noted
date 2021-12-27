@@ -1,18 +1,9 @@
-// We need to import the CSS so that webpack will load it.
-// The MiniCssExtractPlugin is used to separate it out into
-// its own CSS file.
-import "../css/app.scss";
+import "../../priv/static/assets/style.css";
+import "../node_modules/nprogress/nprogress.css";
+import "../node_modules/simplemde/dist/simplemde.min.css";
 import Alpine from "alpinejs";
+import SimpleMDE from "simplemde";
 
-// webpack automatically bundles all modules in your
-// entry points. Those entry points can be configured
-// in "webpack.config.js".
-//
-// Import deps with the dep name or local files with a relative path, for example:
-//
-//     import {Socket} from "phoenix"
-//     import socket from "./socket"
-//
 import "phoenix_html";
 import { Socket } from "phoenix";
 import NProgress from "nprogress";
@@ -25,6 +16,36 @@ let csrfToken = document
 const maxDelay = 1500;
 let chillers = {};
 let hooks = {};
+
+hooks.MarkdownEditor = {
+    mounted() {
+        let current = this;
+        var editor = new SimpleMDE({
+            element: this.el,
+            autoDownloadFontAwesome: false,
+            toolbar: false,
+            status: false
+        });
+        let form = this.el.closest("form");
+        let targetInput = form.querySelector(`[name="${this.el.dataset.name}"]`);
+        let el = this.el;
+        editor.codemirror.on("change", function () {
+            var text = editor.value();
+            console.log(text);
+            //targetInput.innerText = text;
+            //targetInput.innerText = this.el.innerText;
+            if (chillers[el.dataset.name] != undefined) {
+                window.clearTimeout(chillers[el.dataset.name]);
+            }
+            chillers[el.dataset.name] = window.setTimeout(() => {
+                //targetInput.dispatchEvent(new Event("input", { bubbles: true }));
+                current.pushEvent("save-note", text);
+            }, maxDelay);
+        });
+    }
+}
+
+
 hooks.ContentEditable = {
   mounted() {
     let form = this.el.closest("form");

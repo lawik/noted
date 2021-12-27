@@ -24,7 +24,7 @@ defmodule NotedWeb.Endpoint do
     at: "/",
     from: :noted,
     gzip: false,
-    only: ~w(css fonts images js favicon.ico robots.txt)
+    only: ~w(fonts images favicon.ico robots.txt assets)
 
   # Code reloading can be explicitly enabled under the
   # :code_reloader configuration of your endpoint.
