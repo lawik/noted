@@ -59,18 +59,18 @@
 
         <div class="px-2 my-2">
             <button
-            <%= if length(@tags) == 0 do %>disabled="disabled"<% end %>
-            class="mr-3 bg-gray-700 text-gray-200 p-1 px-2 rounded-md disabled:opacity-50"
-            phx-click="add_tag"
-            value="<%= @checked_ids%>"
+                disabled={length(@tags) == 0}
+                class="mr-3 bg-gray-700 text-gray-200 p-1 px-2 rounded-md disabled:opacity-50"
+                phx-click="add_tag"
+                value={@checked_ids}
             >Add tags</button>
 
             <button
-            type="submit"
-            <%= if length(@tags) == 0 do %>disabled="disabled"<% end %>
-            class="mr-3 bg-gray-700 text-gray-200 p-1 px-2 rounded-md disabled:opacity-50"
-            phx-click="remove_tag"
-            value="<%= @checked_ids %>"
+                type="submit"
+                disabled={length(@tags) == 0}
+                class="mr-3 bg-gray-700 text-gray-200 p-1 px-2 rounded-md disabled:opacity-50"
+                phx-click="remove_tag"
+                value={@checked_ids}
             >Remove tags</button>
         </div>
 
@@ -91,7 +91,7 @@
                 x-show="confirmDelete"
                 @click.prevent
                 phx-click="delete"
-                phx-value-checked_ids="<%=@checked_ids %>"
+                phx-value-checked_ids={@checked_ids}
                 class="bg-gray-700 text-gray-200 p-1 px-2 rounded-md"
             >Confirm deletion</button>
         </div>

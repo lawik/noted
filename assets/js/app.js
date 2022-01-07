@@ -24,21 +24,18 @@ hooks.MarkdownEditor = {
             element: this.el,
             autoDownloadFontAwesome: false,
             toolbar: false,
-            status: false
+            status: false,
+            spellChecker: false
         });
         let form = this.el.closest("form");
         let targetInput = form.querySelector(`[name="${this.el.dataset.name}"]`);
         let el = this.el;
         editor.codemirror.on("change", function () {
             var text = editor.value();
-            console.log(text);
-            //targetInput.innerText = text;
-            //targetInput.innerText = this.el.innerText;
             if (chillers[el.dataset.name] != undefined) {
                 window.clearTimeout(chillers[el.dataset.name]);
             }
             chillers[el.dataset.name] = window.setTimeout(() => {
-                //targetInput.dispatchEvent(new Event("input", { bubbles: true }));
                 current.pushEvent("save-note", text);
             }, maxDelay);
         });

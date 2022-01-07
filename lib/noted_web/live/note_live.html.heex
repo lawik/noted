@@ -23,14 +23,6 @@
         class: "block w-full p-6 text-xl text-center text-gray-800 bg-white md:rounded-t-md focus:outline-none border-0"
         ) %>
         <%= error_tag f, :title %>
-    <!-- <div
-        class="block flex-grow w-full p-6 overflow-auto bg-white text-gray-800 focus:outline-none hover:bg-gray-100 whitespace-pre-wrap"
-        id="body-editable"
-        contenteditable="true"
-        phx-update="ignore"
-        phx-hook="ContentEditable"
-        data-name="note[body]"
-        ><%= @note.body %></div>-->
 
     <%= textarea(f, :body, style: "display: none;") %>
     <div phx-update="ignore">
@@ -62,15 +54,15 @@
                                 <p>Are you sure want to delete the file?</p>
                                 <div class="flex mt-4 items-stretch justify-end">
                                     <button @click.away="dialog=false" > Cancel </button>
-                                    <button @click.away="dialog=false"  phx-click="remove_image" phx-value-image_id="<%= image.id%>" type="button" class="ml-6 px-4 py-2 bg-gray-400 rounded-full"> Confirm </button>
+                                    <button @click.away="dialog=false"  phx-click="remove_image" phx-value-image_id={ image.id } type="button" class="ml-6 px-4 py-2 bg-gray-400 rounded-full"> Confirm </button>
                                 </div>
                             </div>
-                        <img src="<%= Routes.file_path(@socket, :serve, image.id) %>" class="w-full" alt="<%= image.filename %>" title="Image: <%= image.filename %>" />
+                        <img src={ Routes.file_path(@socket, :serve, image.id) } class="w-full" alt={ image.filename } title={ "Image: #{image.filename}" } />
                 </div>
             <% end %>
             </div>
             <div class="block w-full rounded-md mt-6 py-3 px-3 bg-gray-700 text-gray-200 text-center">
-                <div class="my-6" phx-drop-target="<%= @uploads.images.ref %>">
+                <div class="my-6" phx-drop-target={ @uploads.images.ref }>
                     <label>
                     <div class="p-4">Drag images here or click to upload</div>
                     <div class="hidden"><%= live_file_input @uploads.images %></div>
@@ -99,7 +91,7 @@
             <%= for file <- @files do %>
             <div action="#" x-data="{dialog: false}" class="relative">
                 <li class="my-3">
-                    -&nbsp;&nbsp;<a href="<%= Routes.file_path(@socket, :serve, file.id) %>" class="underline color-blue-600 align-stretch justify-start">
+                    -&nbsp;&nbsp;<a href={ Routes.file_path(@socket, :serve, file.id) } class="underline color-blue-600 align-stretch justify-start">
                         <%= if file.filename do %>
                             <%= file.filename %>
                         <% else%>
@@ -122,7 +114,7 @@
                         </p>
                         <div class="flex mt-2">
                             <button @click.away="dialog=false" class="ml-6 flex-grow">Cancel</button>
-                            <button @click.away="dialog=false" phx-click="remove_file" phx-value-file_id="<%= file.id%>" type="button" class="flex-grow ml-6 px-2 py-1 bg-gray-400 rounded-full">Confirm</button>
+                            <button @click.away="dialog=false" phx-click="remove_file" phx-value-file_id={ file.id } type="button" class="flex-grow ml-6 px-2 py-1 bg-gray-400 rounded-full">Confirm</button>
                         </div>
                     </div>
                 </li>
@@ -130,7 +122,7 @@
             <% end %>
             </ul>
             <div class="block w-full rounded-md mt-6 py-3 px-3 bg-gray-700 text-gray-200 text-center">
-                <div class="my-6" phx-drop-target="<%= @uploads.files.ref %>">
+                <div class="my-6" phx-drop-target={ @uploads.files.ref }>
                     <label>
                     Drag files here or click to upload
                     <div class="hidden"><%= live_file_input @uploads.files %></div>
@@ -149,7 +141,7 @@
         <%= for tag <- @note.tags do %>
             <div class="flex py-1 px-3 mr-2 mt-2 rounded-full bg-gray-600 text-gray-100">
                 <div class="mr-2">#<%= tag.name %></div>
-                <button class="focus:outline-none" phx-click="remove_tag" phx-value-tag_name="<%= tag.name %>">
+                <button class="focus:outline-none" phx-click="remove_tag" phx-value-tag_name={ tag.name }>
                     <svg xmlns="http://www.w3.org/2000/svg" class="w-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                     </svg>

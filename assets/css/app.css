@@ -69,6 +69,11 @@
   }
 }
 
+.CodeMirror {
+  border-radius: 0 !important;
+  border: none !important;
+}
+
 /* LiveView specific classes for your customizations */
 .phx-no-feedback.invalid-feedback,
 .phx-no-feedback .invalid-feedback {

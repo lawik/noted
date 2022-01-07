@@ -2,7 +2,7 @@ defmodule NotedWeb.Live.Components.NoteList do
   use NotedWeb, :live_component
 
   def render(assigns) do
-    ~L"""
+    ~H"""
     <form phx-change="selection">
       <ul role="list" class="bg-white p-b-4 md:rounded-b-md">
       <%= for note <- @notes do %>

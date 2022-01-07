@@ -10,7 +10,7 @@ use Mix.Config
 #   pool_size: 10
 
 config :noted, Noted.Repo,
-  database: "from-prod.db",
+  database: "database.db",
   show_sensitive_data_on_connection_error: false,
   journal_mode: :wal,
   cache_size: -64000,
